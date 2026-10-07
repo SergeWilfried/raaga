@@ -55,3 +55,5 @@ yarn-error.log*
 ehthumbs.db
 Thumbs.db
 **/.DS_Store
+apps/backend/railway.json
+apps/storefront/railway.json
