@@ -37,6 +37,7 @@ const Companies = () => {
               <Table.HeaderCell>Phone</Table.HeaderCell>
               <Table.HeaderCell>Email</Table.HeaderCell>
               <Table.HeaderCell>Address</Table.HeaderCell>
+              <Table.HeaderCell>KYB</Table.HeaderCell>
               <Table.HeaderCell>Employees</Table.HeaderCell>
               <Table.HeaderCell>Customer Group</Table.HeaderCell>
               <Table.HeaderCell>Actions</Table.HeaderCell>
@@ -62,6 +63,20 @@ const Companies = () => {
                   <Table.Cell>{company.phone}</Table.Cell>
                   <Table.Cell>{company.email}</Table.Cell>
                   <Table.Cell>{`${company.address}, ${company.city}, ${company.state} ${company.zip}`}</Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      size="small"
+                      color={
+                        company.kyb_status === "approved"
+                          ? "green"
+                          : company.kyb_status === "rejected"
+                            ? "red"
+                            : "orange"
+                      }
+                    >
+                      {company.kyb_status || "pending"}
+                    </Badge>
+                  </Table.Cell>
                   <Table.Cell>{company.employees?.length || 0}</Table.Cell>
                   <Table.Cell>
                     {company.customer_group?.name ? (

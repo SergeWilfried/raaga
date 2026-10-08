@@ -11,6 +11,9 @@ export interface CompanyDTO {
   zip: string | null;
   country: string | null;
   logo_url: string | null;
+  registration_number: string | null;
+  tax_id: string | null;
+  kyb_status: "pending" | "approved" | "rejected";
   employees?: EmployeeDTO[];
   currency_code: string | null;
   customer_group?: CustomerGroupDTO;

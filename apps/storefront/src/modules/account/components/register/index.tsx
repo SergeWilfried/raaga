@@ -3,12 +3,18 @@
 import { currencySymbolMap } from "@/lib/constants"
 import { signup } from "@/lib/data/customer"
 import { LOGIN_VIEW } from "@/modules/account/templates/login-template"
-import ErrorMessage from "@/modules/checkout/components/error-message"
-import { SubmitButton } from "@/modules/checkout/components/submit-button"
-import Input from "@/modules/common/components/input"
+import { kybLabels } from "@/lib/kyb"
+import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
-import { Checkbox, Label, Select, Text } from "@medusajs/ui"
-import { ChangeEvent, useActionState, useState } from "react"
+import { ChangeEvent, useActionState, useEffect, useRef, useState } from "react"
+import {
+  AuthError,
+  AuthField,
+  AuthHeading,
+  AuthSelect,
+  AuthSubmit,
+  AuthSwitch,
+} from "../auth-ui"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -27,6 +33,8 @@ interface FormData {
   company_zip: string
   company_country: string
   currency_code: string
+  registration_number: string
+  tax_id: string
 }
 
 const initialFormData: FormData = {
@@ -41,22 +49,15 @@ const initialFormData: FormData = {
   company_zip: "",
   company_country: "",
   currency_code: "",
+  registration_number: "",
+  tax_id: "",
 }
 
-const placeholder = ({
-  placeholder,
-  required,
-}: {
-  placeholder: string
-  required: boolean
-}) => {
-  return (
-    <span className="text-ui-fg-muted">
-      {placeholder}
-      {required && <span className="text-ui-fg-error">*</span>}
-    </span>
-  )
-}
+const STEPS = [
+  { title: "Your account", short: "Account" },
+  { title: "Your company", short: "Company" },
+  { title: "Verify your business", short: "Verification" },
+]
 
 const Register = ({ setCurrentView, regions }: Props) => {
   const [message, formAction] = useActionState(signup, null)
@@ -67,229 +68,303 @@ const Register = ({ setCurrentView, regions }: Props) => {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSelectChange = (name: keyof FormData) => (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
+  const [step, setStep] = useState(0)
+  const stepRef = useRef<HTMLDivElement>(null)
 
-  const isValid =
-    termsAccepted &&
+  const stepValid = [
     !!formData.email &&
-    !!formData.first_name &&
-    !!formData.last_name &&
-    !!formData.company_name &&
-    !!formData.password &&
-    !!formData.company_address &&
-    !!formData.company_city &&
-    !!formData.company_zip &&
-    !!formData.company_country &&
-    !!formData.currency_code
+      /.+@.+\..+/.test(formData.email) &&
+      !!formData.first_name.trim() &&
+      !!formData.last_name.trim() &&
+      formData.password.length >= 8,
+    !!formData.company_name.trim() &&
+      !!formData.company_address.trim() &&
+      !!formData.company_city.trim() &&
+      !!formData.company_zip.trim() &&
+      !!formData.company_country &&
+      !!formData.currency_code,
+    termsAccepted,
+  ]
+  const isValid = stepValid.every(Boolean)
+  const lastStep = STEPS.length - 1
 
-  const countryNames = regions
-    .flatMap((region) =>
-      region.countries?.map((country) => country?.display_name || country?.name)
-    )
-    .filter((country) => country !== undefined)
+  // Move focus to the new step so keyboard and screen-reader users land on it.
+  const mounted = useRef(false)
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
+    stepRef.current?.focus()
+  }, [step])
 
-  const currencies = regions.map((region) => region.currency_code)
+  const goNext = () => stepValid[step] && setStep((n) => Math.min(n + 1, lastStep))
+
+  const countryNames = [
+    ...new Set(
+      regions
+        .flatMap((region) =>
+          region.countries?.map((c) => c?.display_name || c?.name)
+        )
+        .filter((country): country is string => !!country)
+    ),
+  ]
+
+  const kyb = kybLabels(formData.company_country)
+
+  const currencies = [...new Set(regions.map((region) => region.currency_code))]
 
   return (
     <div
-      className="max-w-sm flex flex-col items-start gap-2 my-8"
+      className="flex w-full max-w-xl flex-col gap-8"
       data-testid="register-page"
     >
-      <Text className="text-4xl text-neutral-950 text-left mb-4">
-        Create your
-        <br />
-        company account.
-      </Text>
-      <form className="w-full flex flex-col" action={formAction}>
-        <div className="flex flex-col w-full gap-y-4">
-          <Input
-            label="Email"
+      <AuthHeading sub="Buy and request quotes for your mine or plant. We check your business details before approving the account.">
+        Create a company account
+      </AuthHeading>
+      <nav aria-label="Progress">
+        <ol className="flex gap-2">
+          {STEPS.map((st, i) => (
+            <li key={st.short} className="flex-1" aria-current={i === step ? "step" : undefined}>
+              <div className={`h-1.5 rounded-full ${i <= step ? "bg-brand" : "bg-neutral-300"}`} />
+              <span className={`mt-2 block text-sm ${i === step ? "font-bold text-neutral-950" : "text-neutral-700"}`}>
+                <span className="sr-only">Step </span>{i + 1}
+                <span className="hidden small:inline">. {st.short}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <form
+        className="flex flex-col gap-8"
+        action={formAction}
+        noValidate
+        onSubmit={(e) => {
+          // Enter on an early step moves on instead of submitting.
+          if (step < lastStep || !isValid) {
+            e.preventDefault()
+            goNext()
+          }
+        }}
+      >
+        <div
+          ref={stepRef}
+          tabIndex={-1}
+          aria-live="polite"
+          className="outline-none"
+        >
+          <h2 className="border-b-2 border-neutral-950 pb-2 text-lg font-bold text-neutral-950">
+            Step {step + 1} of {STEPS.length}: {STEPS[step].title}
+          </h2>
+        </div>
+
+        <div className={step === 0 ? "flex flex-col gap-4" : "hidden"}>
+          <div className="grid grid-cols-1 gap-4 small:grid-cols-2">
+            <AuthField
+              label="First name"
+              name="first_name"
+              required
+              autoComplete="given-name"
+              data-testid="first-name-input"
+              value={formData.first_name}
+              onChange={handleChange}
+            />
+            <AuthField
+              label="Last name"
+              name="last_name"
+              required
+              autoComplete="family-name"
+              data-testid="last-name-input"
+              value={formData.last_name}
+              onChange={handleChange}
+            />
+          </div>
+          <AuthField
+            label="Work email"
             name="email"
-            required
             type="email"
+            required
             autoComplete="email"
             data-testid="email-input"
-            className="bg-white"
             value={formData.email}
             onChange={handleChange}
           />
-          <Input
-            label="First name"
-            name="first_name"
+          <AuthField
+            label="Password (8 characters or more)"
+            name="password"
+            type="password"
             required
-            autoComplete="given-name"
-            data-testid="first-name-input"
-            className="bg-white"
-            value={formData.first_name}
+            autoComplete="new-password"
+            data-testid="password-input"
+            value={formData.password}
             onChange={handleChange}
           />
-          <Input
-            label="Last name"
-            name="last_name"
-            required
-            autoComplete="family-name"
-            data-testid="last-name-input"
-            className="bg-white"
-            value={formData.last_name}
-            onChange={handleChange}
-          />
-          <Input
+        </div>
+        <div className={step === 1 ? "flex flex-col gap-4" : "hidden"}>
+          <AuthField
             label="Company name"
             name="company_name"
             required
             autoComplete="organization"
             data-testid="company-name-input"
-            className="bg-white"
             value={formData.company_name}
             onChange={handleChange}
           />
-          <Input
-            label="Password"
-            name="password"
-            required
-            type="password"
-            autoComplete="new-password"
-            data-testid="password-input"
-            className="bg-white"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <Input
-            label="Company address"
+          <AuthField
+            label="Address"
             name="company_address"
             required
-            autoComplete="address"
+            autoComplete="street-address"
             data-testid="company-address-input"
-            className="bg-white"
             value={formData.company_address}
             onChange={handleChange}
           />
-          <Input
-            label="Company city"
-            name="company_city"
-            required
-            autoComplete="city"
-            data-testid="company-city-input"
-            className="bg-white"
-            value={formData.company_city}
-            onChange={handleChange}
-          />
-          <Input
-            label="Company state"
-            name="company_state"
-            autoComplete="state"
-            data-testid="company-state-input"
-            className="bg-white"
-            value={formData.company_state}
-            onChange={handleChange}
-          />
-          <Input
-            label="Company zip"
-            name="company_zip"
-            required
-            autoComplete="postal-code"
-            data-testid="company-zip-input"
-            className="bg-white"
-            value={formData.company_zip}
-            onChange={handleChange}
-          />
-          <Select
-            name="company_country"
-            required
-            autoComplete="country"
-            data-testid="company-country-input"
-            value={formData.company_country}
-            onValueChange={handleSelectChange("company_country")}
-          >
-            <Select.Trigger className="rounded-full h-10 px-4">
-              <Select.Value
-                placeholder={placeholder({
-                  placeholder: "Select a country",
-                  required: true,
-                })}
-              />
-            </Select.Trigger>
-            <Select.Content>
-              {countryNames?.map((country) => (
-                <Select.Item key={country} value={country}>
+          <div className="grid grid-cols-1 gap-4 small:grid-cols-2">
+            <AuthField
+              label="City"
+              name="company_city"
+              required
+              autoComplete="address-level2"
+              data-testid="company-city-input"
+              value={formData.company_city}
+              onChange={handleChange}
+            />
+            <AuthField
+              label="Region or state"
+              name="company_state"
+              autoComplete="address-level1"
+              data-testid="company-state-input"
+              value={formData.company_state}
+              onChange={handleChange}
+            />
+            <AuthField
+              label="Postal code"
+              name="company_zip"
+              required
+              autoComplete="postal-code"
+              data-testid="company-zip-input"
+              value={formData.company_zip}
+              onChange={handleChange}
+            />
+            <AuthSelect
+              label="Country"
+              name="company_country"
+              placeholder="Select a country"
+              required
+              autoComplete="country-name"
+              data-testid="company-country-input"
+              value={formData.company_country}
+              onChange={handleChange}
+            >
+              {countryNames.map((country) => (
+                <option key={country} value={country}>
                   {country}
-                </Select.Item>
+                </option>
               ))}
-            </Select.Content>
-          </Select>
-          <Select
+            </AuthSelect>
+          </div>
+          <AuthSelect
+            label="Currency"
             name="currency_code"
+            placeholder="Select a currency"
             required
-            autoComplete="currency"
             data-testid="company-currency-input"
             value={formData.currency_code}
-            onValueChange={handleSelectChange("currency_code")}
+            onChange={handleChange}
           >
-            <Select.Trigger className="rounded-full h-10 px-4">
-              <Select.Value
-                placeholder={placeholder({
-                  placeholder: "Select a currency",
-                  required: true,
-                })}
-              />
-            </Select.Trigger>
-            <Select.Content>
-              {[...new Set(currencies)].map((currency) => (
-                <Select.Item key={currency} value={currency}>
-                  {currency.toUpperCase()} ({currencySymbolMap[currency]})
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
+            {currencies.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency.toUpperCase()} ({currencySymbolMap[currency]})
+              </option>
+            ))}
+          </AuthSelect>
         </div>
-        <div className="border-b border-neutral-200 my-6" />
-        <ErrorMessage error={message} data-testid="register-error" />
-        <div className="flex items-center gap-2">
-          <Checkbox
-            name="terms"
+        <div className={step === 2 ? "flex flex-col gap-4" : "hidden"}>
+          <AuthField
+            label={kyb.registration.en}
+            name="registration_number"
+            autoComplete="off"
+            data-testid="company-registration-input"
+            value={formData.registration_number}
+            onChange={handleChange}
+          />
+          <AuthField
+            label={kyb.taxId.en}
+            name="tax_id"
+            autoComplete="off"
+            data-testid="company-tax-id-input"
+            value={formData.tax_id}
+            onChange={handleChange}
+            hint="Optional now, but we need them to verify and approve your business account."
+          />
+        <label
+          htmlFor="terms-checkbox"
+          className="flex min-h-11 cursor-pointer items-start gap-3 text-base text-neutral-950"
+          data-testid="terms-label"
+        >
+          <input
+            type="checkbox"
             id="terms-checkbox"
+            name="terms"
             data-testid="terms-checkbox"
             checked={termsAccepted}
-            onCheckedChange={(checked) => setTermsAccepted(!!checked)}
-          ></Checkbox>
-          <Label
-            id="terms-label"
-            className="flex items-center text-ui-fg-base !text-xs hover:cursor-pointer !transform-none"
-            htmlFor="terms-checkbox"
-            data-testid="terms-label"
-          >
-            I agree to the terms and conditions.
-          </Label>
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="mt-0.5 h-6 w-6 shrink-0 cursor-pointer accent-[var(--brand)]"
+          />
+          <span>
+            I agree to the{" "}
+            <LocalizedClientLink href="/terms" className="font-semibold underline underline-offset-4">
+              terms
+            </LocalizedClientLink>{" "}
+            and{" "}
+            <LocalizedClientLink href="/privacy" className="font-semibold underline underline-offset-4">
+              privacy policy
+            </LocalizedClientLink>
+            .
+          </span>
+        </label>
+
         </div>
-        <SubmitButton
-          className="w-full mt-6"
-          data-testid="register-button"
-          disabled={!isValid}
-        >
-          Register
-        </SubmitButton>
+
+        <AuthError error={message} data-testid="register-error" />
+        <div className="flex flex-col-reverse gap-3 small:flex-row">
+          {step > 0 && (
+            <button
+              type="button"
+              onClick={() => setStep((n) => n - 1)}
+              data-testid="register-back"
+              className="inline-flex min-h-14 items-center justify-center rounded-lg border-2 border-neutral-950 px-6 text-base font-semibold text-neutral-950 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-950/30"
+            >
+              Back
+            </button>
+          )}
+          {step < lastStep ? (
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!stepValid[step]}
+              data-testid="register-next"
+              className="inline-flex min-h-14 flex-1 items-center justify-center rounded-lg bg-brand px-6 text-base font-semibold text-white hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-950/40 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-700"
+            >
+              Continue
+            </button>
+          ) : (
+            <div className="flex-1">
+              <AuthSubmit data-testid="register-button" disabled={!isValid}>
+                Create account
+              </AuthSubmit>
+            </div>
+          )}
+        </div>
       </form>
-      <span className="text-center text-ui-fg-base text-small-regular mt-6">
-        Already a member?{" "}
-        <button
-          onClick={() => setCurrentView(LOGIN_VIEW.LOG_IN)}
-          className="underline"
-        >
-          Log in
-        </button>
-        .
-      </span>
+      <AuthSwitch
+        prompt="Already have an account?"
+        action="Log in"
+        onClick={() => setCurrentView(LOGIN_VIEW.LOG_IN)}
+      />
     </div>
   )
 }

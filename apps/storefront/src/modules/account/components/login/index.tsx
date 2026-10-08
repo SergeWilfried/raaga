@@ -1,11 +1,13 @@
 import { login } from "@/lib/data/customer"
 import { LOGIN_VIEW } from "@/modules/account/templates/login-template"
-import ErrorMessage from "@/modules/checkout/components/error-message"
-import { SubmitButton } from "@/modules/checkout/components/submit-button"
-import Button from "@/modules/common/components/button"
-import Input from "@/modules/common/components/input"
-import { Checkbox, Text } from "@medusajs/ui"
 import { useActionState } from "react"
+import {
+  AuthError,
+  AuthField,
+  AuthHeading,
+  AuthSubmit,
+  AuthSwitch,
+} from "../auth-ui"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -16,56 +18,38 @@ const Login = ({ setCurrentView }: Props) => {
 
   return (
     <div
-      className="max-w-sm w-full h-full flex flex-col justify-center gap-6 my-auto"
+      className="flex w-full max-w-md flex-col gap-8"
       data-testid="login-page"
     >
-      <Text className="text-4xl text-neutral-950 text-left">
-        Log in for faster
-        <br />
-        checkout.
-      </Text>
-      <form className="w-full" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            title="Enter a valid email address."
-            autoComplete="email"
-            required
-            data-testid="email-input"
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            data-testid="password-input"
-          />
-          <div className="flex flex-col gap-2 w-full border-b border-neutral-200 my-6" />
-          <div className="flex items-center gap-2">
-            <Checkbox name="remember_me" data-testid="remember-me-checkbox" />
-            <Text className="text-neutral-950 text-base-regular">
-              Remember me
-            </Text>
-          </div>
-        </div>
-        <ErrorMessage error={message} data-testid="login-error-message" />
-        <div className="flex flex-col gap-2">
-          <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
-            Log in
-          </SubmitButton>
-          <Button
-            variant="secondary"
-            onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
-            className="w-full h-10"
-            data-testid="register-button"
-          >
-            Register
-          </Button>
-        </div>
+      <AuthHeading sub="Order faster and keep your quotes in one place.">
+        Log in
+      </AuthHeading>
+      <form className="flex flex-col gap-5" action={formAction}>
+        <AuthField
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          data-testid="email-input"
+        />
+        <AuthField
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          data-testid="password-input"
+        />
+        <AuthError error={message} data-testid="login-error-message" />
+        <AuthSubmit data-testid="sign-in-button">Log in</AuthSubmit>
       </form>
+      <AuthSwitch
+        prompt="New to Raaga?"
+        action="Create a company account"
+        onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
+        data-testid="register-button"
+      />
     </div>
   )
 }

@@ -102,6 +102,9 @@ export async function signup(_currentState: unknown, formData: FormData) {
       zip: formData.get("company_zip") as string,
       country: formData.get("company_country") as string,
       currency_code: formData.get("currency_code") as string,
+      registration_number:
+        (formData.get("registration_number") as string)?.trim() || null,
+      tax_id: (formData.get("tax_id") as string)?.trim() || null,
     }
 
     const createdCompany = await createCompany(companyForm)

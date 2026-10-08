@@ -16,6 +16,10 @@ export const Company = model.define("company", {
   zip: model.text().nullable(),
   country: model.text().nullable(),
   logo_url: model.text().nullable(),
+  // KYB: business registration (RCCM or equivalent) and tax ID (IFU or equivalent).
+  registration_number: model.text().nullable(),
+  tax_id: model.text().nullable(),
+  kyb_status: model.enum(["pending", "approved", "rejected"]).default("pending"),
   currency_code: model.text().nullable(),
   spending_limit_reset_frequency: model
     .enum(["never", "daily", "weekly", "monthly", "yearly"])

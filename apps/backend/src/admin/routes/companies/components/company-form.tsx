@@ -2,6 +2,7 @@ import { Button, Drawer, Input, Label, Select, Text } from "@medusajs/ui";
 import { AdminUpdateCompany } from "../../../../types";
 import { useState } from "react";
 import { useRegions } from "../../../hooks/api";
+import { kybLabels } from "../../../../lib/kyb";
 
 export function CompanyForm({
   company,
@@ -22,6 +23,8 @@ export function CompanyForm({
 
   const currencyCodes = regions?.map((region) => region.currency_code);
   const countries = regions?.flatMap((region) => region.countries);
+
+  const labels = kybLabels(formData.country);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -143,6 +146,40 @@ export function CompanyForm({
               </Select>
             </div>
           </div>
+          <Label size="xsmall">{labels.registration.en}</Label>
+          <Input
+            type="text"
+            name="registration_number"
+            value={formData.registration_number || ""}
+            onChange={handleChange}
+          />
+          <Label size="xsmall">{labels.taxId.en}</Label>
+          <Input
+            type="text"
+            name="tax_id"
+            value={formData.tax_id || ""}
+            onChange={handleChange}
+          />
+          <Label size="xsmall">KYB status</Label>
+          <Select
+            name="kyb_status"
+            value={formData.kyb_status || "pending"}
+            onValueChange={(value) =>
+              setFormData({
+                ...formData,
+                kyb_status: value as "pending" | "approved" | "rejected",
+              })
+            }
+          >
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content className="z-50">
+              <Select.Item value="pending">Pending review</Select.Item>
+              <Select.Item value="approved">Approved</Select.Item>
+              <Select.Item value="rejected">Rejected</Select.Item>
+            </Select.Content>
+          </Select>
           {/* TODO: Add logo upload */}
           <Label size="xsmall">Company Logo URL</Label>
           <Input

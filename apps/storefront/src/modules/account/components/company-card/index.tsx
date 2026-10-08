@@ -2,6 +2,7 @@
 
 import { currencySymbolMap } from "@/lib/constants"
 import { updateCompany } from "@/lib/data/companies"
+import { kybLabels } from "@/lib/kyb"
 import Button from "@/modules/common/components/button"
 import Input from "@/modules/common/components/input"
 import Select from "@/modules/common/components/native-select"
@@ -21,7 +22,8 @@ const CompanyCard = ({
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  const { updated_at, created_at, employees, ...companyUpdateData } = company
+  const { updated_at, created_at, employees, kyb_status, ...companyUpdateData } =
+    company
 
   const [companyData, setCompanyData] = useState(
     companyUpdateData as StoreUpdateCompany
@@ -37,6 +39,8 @@ const CompanyCard = ({
 
     toast.success("Company updated")
   }
+
+  const kyb = kybLabels(companyData.country ?? company.country)
 
   const currenciesInRegions = Array.from(
     new Set(regions.map((region) => region.currency_code))
@@ -55,7 +59,7 @@ const CompanyCard = ({
           className={clx(
             "grid grid-cols-2 gap-4 border-b border-neutral-200 overflow-hidden transition-all duration-300 ease-in-out ",
             {
-              "max-h-[422px] opacity-100 p-4": isEditing,
+              "max-h-[560px] opacity-100 p-4": isEditing,
               "max-h-0 opacity-0": !isEditing,
             }
           )}
@@ -160,6 +164,33 @@ const CompanyCard = ({
             </Select>
           </div>
           <div className="flex flex-col gap-y-2">
+            <Text className="font-medium text-neutral-950">
+              {kyb.registration.en}
+            </Text>
+            <Input
+              label={kyb.registration.en}
+              name="registration_number"
+              value={companyData.registration_number || ""}
+              onChange={(e) =>
+                setCompanyData({
+                  ...companyData,
+                  registration_number: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-y-2">
+            <Text className="font-medium text-neutral-950">{kyb.taxId.en}</Text>
+            <Input
+              label={kyb.taxId.en}
+              name="tax_id"
+              value={companyData.tax_id || ""}
+              onChange={(e) =>
+                setCompanyData({ ...companyData, tax_id: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-y-2">
             <Text className="font-medium text-neutral-950">Currency</Text>
             <Select
               name="currency_code"
@@ -229,6 +260,28 @@ const CompanyCard = ({
             <Text className=" text-neutral-500">
               {company.address}, {company.city}, {company.state}, {company.zip},{" "}
               {company.country?.toUpperCase()}
+            </Text>
+          </div>
+          <div className="flex flex-col gap-y-2">
+            <Text className="font-medium text-neutral-950">
+              {kyb.registration.en}
+            </Text>
+            <Text className=" text-neutral-500">
+              {company.registration_number || "-"}
+            </Text>
+          </div>
+          <div className="flex flex-col gap-y-2">
+            <Text className="font-medium text-neutral-950">{kyb.taxId.en}</Text>
+            <Text className=" text-neutral-500">{company.tax_id || "-"}</Text>
+          </div>
+          <div className="flex flex-col gap-y-2">
+            <Text className="font-medium text-neutral-950">Verification</Text>
+            <Text className=" text-neutral-500">
+              {company.kyb_status === "approved"
+                ? "Approved"
+                : company.kyb_status === "rejected"
+                  ? "Rejected"
+                  : "Pending review"}
             </Text>
           </div>
           <div className="flex flex-col gap-y-2">

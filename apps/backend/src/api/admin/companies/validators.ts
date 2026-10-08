@@ -18,6 +18,9 @@ export const AdminCreateCompany = z
     zip: z.string().optional(),
     country: z.string().optional(),
     logo_url: z.string().optional(),
+    registration_number: z.string().trim().max(64).optional().nullable(),
+    tax_id: z.string().trim().max(64).optional().nullable(),
+    kyb_status: z.enum(["pending", "approved", "rejected"]).optional(),
   })
   .strict();
 
@@ -34,6 +37,9 @@ export const AdminUpdateCompany = z
     zip: z.string().optional(),
     country: z.string().optional(),
     logo_url: z.string().optional().nullable(),
+    registration_number: z.string().trim().max(64).optional().nullable(),
+    tax_id: z.string().trim().max(64).optional().nullable(),
+    kyb_status: z.enum(["pending", "approved", "rejected"]).optional(),
   })
   .strict();
 

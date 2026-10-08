@@ -32,6 +32,9 @@ export type AdminCreateCompany = {
   zip: string | null;
   country: string | null;
   logo_url: string | null;
+  registration_number?: string | null;
+  tax_id?: string | null;
+  kyb_status?: "pending" | "approved" | "rejected";
   currency_code: string | null;
 };
 
@@ -82,6 +85,8 @@ export type StoreCreateCompany = {
   zip?: string | null;
   country?: string | null;
   logo_url?: string | null;
+  registration_number?: string | null;
+  tax_id?: string | null;
   currency_code: string;
 };
 
@@ -96,6 +101,8 @@ export type StoreUpdateCompany = {
   zip: string | null;
   country: string | null;
   logo_url: string | null;
+  registration_number?: string | null;
+  tax_id?: string | null;
   currency_code: string;
   spending_limit_reset_frequency?: ModuleCompanySpendingLimitResetFrequency;
 };

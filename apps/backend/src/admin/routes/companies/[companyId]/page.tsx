@@ -12,6 +12,7 @@ import { QueryEmployee } from "../../../../types";
 import { useParams } from "react-router-dom";
 import { useAdminCustomerGroups, useCompany } from "../../../hooks/api";
 import { formatAmount } from "../../../utils";
+import { kybLabels } from "../../../../lib/kyb";
 import { CompanyActionsMenu } from "../components";
 import {
   EmployeeCreateDrawer,
@@ -84,6 +85,37 @@ const CompanyDetails = () => {
                     State
                   </Table.Cell>
                   <Table.Cell>{company?.state}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell className="font-medium font-sans txt-compact-small">
+                    {kybLabels(company?.country).registration.en}
+                  </Table.Cell>
+                  <Table.Cell>{company?.registration_number || "-"}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell className="font-medium font-sans txt-compact-small">
+                    {kybLabels(company?.country).taxId.en}
+                  </Table.Cell>
+                  <Table.Cell>{company?.tax_id || "-"}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell className="font-medium font-sans txt-compact-small">
+                    KYB status
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      size="small"
+                      color={
+                        company?.kyb_status === "approved"
+                          ? "green"
+                          : company?.kyb_status === "rejected"
+                            ? "red"
+                            : "orange"
+                      }
+                    >
+                      {company?.kyb_status || "pending"}
+                    </Badge>
+                  </Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell className="font-medium font-sans txt-compact-small">

@@ -17,6 +17,9 @@ export type ModuleCompany = {
   zip: string | null
   country: string | null
   logo_url: string | null
+  registration_number: string | null
+  tax_id: string | null
+  kyb_status: "pending" | "approved" | "rejected"
   currency_code: string | null
   spending_limit_reset_frequency: ModuleCompanySpendingLimitResetFrequency
   created_at: string
