@@ -10,6 +10,7 @@ import {
   createProductsWorkflow,
   createShippingOptionsWorkflow,
   createStockLocationsWorkflow,
+  deleteInventoryItemWorkflow,
   deleteProductsWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
 } from "@medusajs/medusa/core-flows";
@@ -207,7 +208,26 @@ export default async function seedNordgold({ container }: ExecArgs) {
 
   // One batch: create the products, then stock them. Wrapped so a dropped
   // connection retries the batch instead of ending a multi-hour run.
+  // A batch that died part-way can leave inventory items with no variant. Their
+  // SKUs then block re-creating the part ("Inventory item with sku ... already
+  // exists"), so remove any such leftovers for this batch before creating it.
+  const removeOrphanInventory = async (chunk: Row[]) => {
+    const { data: items } = await query.graph({
+      entity: "inventory_item",
+      fields: ["id", "sku", "variants.id"],
+      filters: { sku: chunk.map((r) => r.code) },
+    });
+    const orphans = items.filter((i: any) => !i.variants?.length);
+    if (orphans.length) {
+      await deleteInventoryItemWorkflow(container).run({
+        input: orphans.map((i: any) => i.id),
+      });
+      logger.info(`Removed ${orphans.length} orphaned inventory items`);
+    }
+  };
+
   const processChunk = async (chunk: Row[]) => {
+    await removeOrphanInventory(chunk);
     await createProductsWorkflow(container).run({
       input: {
         products: chunk.map((r) => ({
@@ -275,7 +295,7 @@ export default async function seedNordgold({ container }: ExecArgs) {
         if (attempt >= 5) throw error;
         logger.warn(
           `Batch at ${i} failed (attempt ${attempt}/5): ${
-            error instanceof Error ? error.message : error
+            (error as { message?: string })?.message ?? JSON.stringify(error)
           }. Cleaning up and retrying in ${attempt * 15}s...`
         );
         // Remove any products from this batch that were left without variants.
