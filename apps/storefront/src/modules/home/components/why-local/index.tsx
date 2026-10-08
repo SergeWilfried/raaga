@@ -95,7 +95,7 @@ const WhyLocal = ({ lang }: { lang: Lang }) => {
 
         <article className="flex flex-col justify-between gap-6 rounded-xl bg-neutral-950 p-6 text-white small:col-span-6 small:p-8">
           <h3 className={`${tileTitle} text-[clamp(1.75rem,3.4vw,2.75rem)]`}>{lead.title}</h3>
-          <p className="max-w-md text-base leading-relaxed text-neutral-200">{lead.body}</p>
+          <p className="text-base leading-relaxed text-neutral-200 text-pretty small:max-medium:text-sm">{lead.body}</p>
         </article>
 
         <article className="flex flex-col gap-5 rounded-xl border border-neutral-300 bg-white p-6 small:col-span-6 small:p-8">
@@ -103,7 +103,7 @@ const WhyLocal = ({ lang }: { lang: Lang }) => {
             <h3 className={`${tileTitle} text-[clamp(1.75rem,3.4vw,2.75rem)] text-ui-fg-base`}>
               {freight.title}
             </h3>
-            <p className="max-w-md text-base leading-relaxed text-neutral-800">{freight.body}</p>
+            <p className="text-base leading-relaxed text-neutral-800 text-pretty small:max-medium:text-sm">{freight.body}</p>
           </div>
           <div className="flex flex-col gap-4" data-testid="legs">
             <Legs label={t.localLegsLabelOverseas} stops={t.localLegsOverseas} columns={t.localLegsOverseas.length} tone="long" />
