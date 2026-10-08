@@ -5,6 +5,8 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
+  // Private pages: keep them out of search results.
+  robots: { index: false, follow: false },
   title: "Addresses",
   description: "View your addresses",
 }

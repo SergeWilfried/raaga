@@ -7,9 +7,14 @@ export type Lang = "en" | "fr"
  */
 const copy = {
   en: {
-    metaTitle: "Raaga | Mining spare parts in West Africa",
+    metaTitle: "Raaga | Mining Spare Parts in West Africa",
     metaDescription:
-      "Search mining spare parts held in West Africa by part number, brand or machine. See stock and pre-tax prices, or request a quote.",
+      "Find mining spare parts held in West Africa by part number, brand or machine. See live stock and pre-tax prices, or request a quote.",
+    storeTitle: "All Mining Spare Parts | Raaga",
+    storeDescription:
+      "Browse every part in stock. Search by part number, brand or category; prices are shown before tax.",
+    siteName: "Raaga",
+    ogLocale: "en_US",
     heroLine1: "Find the part.",
     heroLine2: "See the stock.",
     heroSub:
@@ -69,7 +74,12 @@ const copy = {
   fr: {
     metaTitle: "Raaga | Pièces détachées minières en Afrique de l'Ouest",
     metaDescription:
-      "Recherchez des pièces détachées minières disponibles en Afrique de l'Ouest par référence, marque ou machine. Stock et prix HT affichés, ou demandez un devis.",
+      "Trouvez des pièces détachées minières disponibles en Afrique de l'Ouest par référence, marque ou machine. Stock en temps réel, prix HT, ou demandez un devis.",
+    storeTitle: "Toutes les pièces détachées minières | Raaga",
+    storeDescription:
+      "Parcourez toutes les pièces en stock. Recherchez par référence, marque ou catégorie ; les prix sont affichés hors taxes.",
+    siteName: "Raaga",
+    ogLocale: "fr_FR",
     heroLine1: "Trouvez la pièce.",
     heroLine2: "Voyez le stock.",
     heroSub:

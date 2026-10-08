@@ -40,7 +40,7 @@ export default async function Footer() {
 
   return (
     <footer className="w-full bg-neutral-950 text-neutral-300">
-      <div className="content-container grid grid-cols-2 gap-x-6 gap-y-10 py-14 small:grid-cols-[1.3fr_repeat(5,minmax(0,1fr))] small:gap-x-10">
+      <div className="content-container grid grid-cols-2 gap-x-6 gap-y-10 py-14 small:grid-cols-[minmax(17rem,1.7fr)_repeat(5,minmax(0,1fr))] small:gap-x-8">
         <div className="col-span-2 flex flex-col gap-3 small:col-span-1">
           <LocalizedClientLink
             href="/"
@@ -48,36 +48,10 @@ export default async function Footer() {
           >
             Raaga
           </LocalizedClientLink>
-          <p className="max-w-xs text-sm leading-relaxed">{t.footerTagline}</p>
+          <p className="max-w-md text-sm leading-relaxed">{t.footerTagline}</p>
           <SocialLinks label={t.footerFollow} />
         </div>
 
-        {categories.length > 0 && (
-          <Column title={t.footerCategories}>
-            {categories.map((category) => (
-              <li key={category.id}>
-                <LocalizedClientLink
-                  href={`/categories/${category.handle}`}
-                  className={linkClass}
-                  data-testid="category-link"
-                >
-                  {category.name}
-                </LocalizedClientLink>
-              </li>
-            ))}
-            {hasMore && (
-              <li>
-                <LocalizedClientLink
-                  href="/store"
-                  className={`${linkClass} font-medium text-white underline underline-offset-4`}
-                  data-testid="footer-see-more"
-                >
-                  {t.footerSeeAll}
-                </LocalizedClientLink>
-              </li>
-            )}
-          </Column>
-        )}
 
         {brands.length > 0 && (
           <Column title={t.footerBrands}>

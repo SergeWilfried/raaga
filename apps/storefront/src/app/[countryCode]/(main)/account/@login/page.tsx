@@ -3,6 +3,8 @@ import LoginTemplate from "@/modules/account/templates/login-template"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
+  // Private pages: keep them out of search results.
+  robots: { index: false, follow: false },
   title: "Log in",
   description: "Log in to your Raaga account.",
 }

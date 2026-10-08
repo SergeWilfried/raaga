@@ -6,6 +6,8 @@ import { Metadata } from "next"
 import { Suspense } from "react"
 
 export const metadata: Metadata = {
+  // Private pages: keep them out of search results.
+  robots: { index: false, follow: false },
   title: "Approvals",
   description: "Overview of your pending approvals.",
 }

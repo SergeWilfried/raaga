@@ -4,6 +4,7 @@ import HowItWorks from "@/modules/home/components/how-it-works"
 import QuoteBand from "@/modules/home/components/quote-band"
 import ShelfNow from "@/modules/home/components/shelf-now"
 import { getLandingCopy, resolveLang } from "@/lib/landing-copy"
+import { languageAlternates, socialMetadata } from "@/lib/seo"
 import { Metadata } from "next"
 import { headers } from "next/headers"
 import { Suspense } from "react"
@@ -19,8 +20,15 @@ const pageLang = async (searchParams: Props["searchParams"]) => {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const t = getLandingCopy(await pageLang(props.searchParams))
-  return { title: t.metaTitle, description: t.metaDescription }
+  const lang = await pageLang(props.searchParams)
+  const t = getLandingCopy(lang)
+  const { countryCode } = await props.params
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+    alternates: languageAlternates(`/${countryCode}`),
+    ...socialMetadata({ title: t.metaTitle, description: t.metaDescription, lang }),
+  }
 }
 
 export default async function Home(props: Props) {

@@ -16,6 +16,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
+    robots: { index: false, follow: false },
     title: `Order #${order.display_id}`,
     description: `View your order`,
   }

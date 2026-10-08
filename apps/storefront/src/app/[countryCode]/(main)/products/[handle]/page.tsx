@@ -3,7 +3,11 @@ import { getAuthHeaders } from "@/lib/data/cookies"
 import { getProductByHandle } from "@/lib/data/products"
 import { getRegion, listRegions } from "@/lib/data/regions"
 import ProductTemplate from "@/modules/products/templates"
+import { getProductPrice } from "@/lib/util/get-product-price"
+import { resolveLang } from "@/lib/landing-copy"
+import { languageAlternates, socialMetadata } from "@/lib/seo"
 import { Metadata } from "next"
+import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 
 export const dynamicParams = true
@@ -70,14 +74,47 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const lang = resolveLang(undefined, (await headers()).get("accept-language"))
+  const brand =
+    typeof product.metadata?.brand === "string" ? product.metadata.brand.trim() : ""
+  const sku = product.variants?.[0]?.sku
+  const price = getProductPrice({ product }).cheapestPrice?.calculated_price
+
+  const title = `${product.title}${sku ? ` (${sku})` : ""} | Raaga`
+  const facts = [
+    `${brand ? `${brand} ` : ""}${product.title}`,
+    sku ? (lang === "fr" ? `référence ${sku}` : `part number ${sku}`) : null,
+    price
+      ? lang === "fr"
+        ? `${price} HT`
+        : `${price} excl. VAT`
+      : lang === "fr"
+        ? "prix sur demande"
+        : "price on request",
+  ]
+    .filter(Boolean)
+    .join(", ")
+  const tail =
+    lang === "fr"
+      ? ". Pièce minière en Afrique de l'Ouest : stock en direct, commande ou devis."
+      : ". Mining spare part in West Africa: live stock, order or quote."
+  // Keep the closing sentence whole; trim the facts if the whole is too long.
+  const room = 158 - tail.length
+  const description =
+    facts.length > room ? `${facts.slice(0, Math.max(0, room - 1)).trimEnd()}…${tail}` : `${facts}${tail}`
+
   return {
-    title: `${product.title} | Raaga`,
-    description: `${product.title}`,
-    openGraph: {
-      title: `${product.title} | Raaga`,
-      description: `${product.title}`,
-      images: product.thumbnail ? [product.thumbnail] : [],
-    },
+    title,
+    description,
+    alternates: languageAlternates(
+      `/${params.countryCode}/products/${product.handle}`
+    ),
+    ...socialMetadata({
+      title,
+      description,
+      lang,
+      image: product.thumbnail ?? product.images?.[0]?.url,
+    }),
   }
 }
 

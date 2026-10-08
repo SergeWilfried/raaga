@@ -17,6 +17,25 @@ const archivo = Archivo({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  applicationName: "Raaga",
+  title: "Raaga | Mining Spare Parts in West Africa",
+  description:
+    "Find mining spare parts held in West Africa by part number, brand or machine. See live stock and pre-tax prices, or request a quote.",
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    siteName: "Raaga",
+    title: "Raaga | Mining Spare Parts in West Africa",
+    description:
+      "Find mining spare parts held in West Africa by part number, brand or machine. See live stock and pre-tax prices, or request a quote.",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1517089472343-85fc51aeb327?auto=format&fit=crop&w=1200&h=630&q=80",
+        alt: "Machinery working a quarry seen from above, with tracks pressed into the gravel",
+      },
+    ],
+  },
+  twitter: { card: "summary_large_image" },
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {

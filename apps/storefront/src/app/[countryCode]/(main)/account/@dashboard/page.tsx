@@ -6,6 +6,8 @@ import Overview from "@/modules/account/components/overview"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
+  // Private pages: keep them out of search results.
+  robots: { index: false, follow: false },
   title: "Account",
   description: "Overview of your account activity.",
 }

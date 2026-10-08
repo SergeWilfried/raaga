@@ -5,6 +5,8 @@ import CartTemplate from "@/modules/cart/templates"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
+  // Private pages: keep them out of search results.
+  robots: { index: false, follow: false },
   title: "Cart",
   description: "View your cart",
 }

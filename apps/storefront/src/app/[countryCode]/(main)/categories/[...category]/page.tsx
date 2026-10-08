@@ -2,7 +2,10 @@ import { getCategoryByHandle, listCategories } from "@/lib/data/categories"
 import { listRegions } from "@/lib/data/regions"
 import CategoryTemplate from "@/modules/categories/templates"
 import { SortOptions } from "@/modules/store/components/refinement-list/sort-products"
+import { resolveLang } from "@/lib/landing-copy"
+import { languageAlternates, socialMetadata } from "@/lib/seo"
 import { Metadata } from "next"
+import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 
 export const dynamicParams = true
@@ -23,14 +26,21 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
     const title = product_category.name
 
-    const description = product_category.description ?? `${title} category.`
+    const lang = resolveLang(undefined, (await headers()).get("accept-language"))
+    const description =
+      product_category.description?.trim() ||
+      (lang === "fr"
+        ? `Parcourez les pièces ${title} : références, marques et stock. Prix affichés hors taxes.`
+        : `Browse ${title} mining spare parts: part numbers, brands and stock. Prices shown before tax.`)
+    const pageTitle = `${title} | Raaga`
 
     return {
-      title: `${title} | Raaga`,
+      title: pageTitle,
       description,
-      alternates: {
-        canonical: `${params.category.join("/")}`,
-      },
+      alternates: languageAlternates(
+        `/${params.countryCode}/categories/${params.category.join("/")}`
+      ),
+      ...socialMetadata({ title: pageTitle, description, lang }),
     }
   } catch (error) {
     notFound()
