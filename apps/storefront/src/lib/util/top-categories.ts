@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { categoryProductCount } from "./category-count"
 
 /**
  * The top-level categories with the most products, for menus that can't list
@@ -11,7 +12,7 @@ export const getTopCategories = (
   const topLevel = categories.filter((category) => !category.parent_category_id)
 
   const sorted = [...topLevel].sort(
-    (a, b) => (b.products?.length ?? 0) - (a.products?.length ?? 0)
+    (a, b) => categoryProductCount(b) - categoryProductCount(a)
   )
 
   return {

@@ -19,7 +19,7 @@ export const listCategories = async (
       {
         query: {
           fields:
-            "*category_children, *products, *parent_category, *parent_category.parent_category",
+            "*category_children, *parent_category, *parent_category.parent_category, +metadata",
           limit,
           ...query,
         },
@@ -43,7 +43,7 @@ export const getCategoryByHandle = async (
       `/store/product-categories`,
       {
         query: {
-          fields: "*category_children, *products",
+          fields: "*category_children, +metadata",
           handle,
         },
         next,

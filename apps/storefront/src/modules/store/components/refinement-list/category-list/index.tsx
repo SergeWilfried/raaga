@@ -1,3 +1,4 @@
+import { categoryProductCount } from "@/lib/util/category-count"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import Radio from "@/modules/common/components/radio"
 import SquareMinus from "@/modules/common/icons/square-minus"
@@ -98,7 +99,7 @@ const CategoryList = ({
                 }`}
                 className="flex gap-2 items-center hover:text-neutral-700"
               >
-                {category.name} ({category.products?.length})
+                {category.name} ({categoryProductCount(category)})
               </LocalizedClientLink>
             </div>
           ) : (
@@ -109,7 +110,7 @@ const CategoryList = ({
               className="flex gap-2 items-center hover:text-neutral-700 text-start hover:cursor-pointer"
             >
               <Radio checked={isCurrentCategory(category.handle)} />
-              {category.name} ({category.products?.length})
+              {category.name} ({categoryProductCount(category)})
             </LocalizedClientLink>
           )}
         </div>

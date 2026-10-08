@@ -156,6 +156,19 @@ export const listProductsWithSort = async ({
     ? Array.from(new Set(optionValueIds))
     : undefined
 
+  // Default ordering is the API's own, so let it paginate: one page of results
+  // instead of fetching 100 products and slicing. This also makes every page of
+  // a large category reachable (the 100-product fetch capped it at 100).
+  // Price sorts and option filters still need the whole set, so they fall
+  // through to the in-memory path below.
+  if (sortBy === "created_at" && !dedupedOptionValueIds) {
+    return listProducts({
+      pageParam: Math.max(page, 1),
+      queryParams: { ...queryParams, limit },
+      countryCode,
+    })
+  }
+
   const {
     response: { products },
   } = await listProducts({

@@ -1,3 +1,4 @@
+import { categoryProductCount } from "@/lib/util/category-count"
 import CategoryBreadcrumb from "@/modules/categories/category-breadcrumb"
 import Button from "@/modules/common/components/button"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
@@ -49,7 +50,7 @@ export default function CategoryTemplate({
             hideOptionsPicker
           />
           <div className="w-full">
-            {currentCategory.products?.length === 0 ? (
+            {categoryProductCount(currentCategory) === 0 ? (
               <Container className="flex flex-col gap-2 justify-center text-center items-center text-sm text-neutral-500">
                 <Text className="font-medium">
                   No products found for this category.
@@ -68,7 +69,7 @@ export default function CategoryTemplate({
               <Suspense
                 fallback={
                   <SkeletonProductGrid
-                    count={currentCategory.products?.length}
+                    count={Math.min(categoryProductCount(currentCategory), 12)}
                   />
                 }
               >

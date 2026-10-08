@@ -15,6 +15,7 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { readFileSync } from "fs";
 import { extractBrand } from "../lib/brands";
+import { updateCategoryCounts } from "../lib/category-counts";
 import { join } from "path";
 
 type Row = {
@@ -296,5 +297,6 @@ export default async function seedNordgold({ container }: ExecArgs) {
       logger.info(`  ${Math.min(i + BATCH, todo.length)}/${todo.length}`);
     }
   }
+  await updateCategoryCounts(container);
   logger.info("Finished seeding Nordgold products.");
 }

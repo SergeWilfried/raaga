@@ -11,6 +11,7 @@ import {
 import { ProductStatus } from "@medusajs/framework/utils";
 import { readFileSync } from "fs";
 import { extractBrand } from "../lib/brands";
+import { updateCategoryCounts } from "../lib/category-counts";
 import {
   MARKUP_PERCENT,
   VAT_PERCENT,
@@ -187,5 +188,6 @@ export default async function seedProducts({ container }: ExecArgs) {
       input: { inventory_levels: levels.slice(i, i + batchSize) },
     });
   }
+  await updateCategoryCounts(container);
   logger.info(`Finished seeding products (${levels.length} stocked).`);
 }
