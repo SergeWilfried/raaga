@@ -57,3 +57,6 @@ Thumbs.db
 **/.DS_Store
 apps/backend/railway.json
 apps/storefront/railway.json
+
+# Client stock sheets are source data, not code: keep them out of the repo.
+apps/backend/seed/*.xlsx
