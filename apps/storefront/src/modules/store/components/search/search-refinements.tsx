@@ -12,7 +12,7 @@ import PriceRangeFacet, { PRICE_ATTRIBUTE } from "./price-range-facet"
 import SortSelect from "./sort-select"
 
 const CATEGORY_ATTRIBUTE = "category"
-const LABELS_ATTRIBUTE = "labels"
+const BRAND_ATTRIBUTE = "brand"
 
 /**
  * The store sidebar: the sort control and one section per facet. There is no
@@ -40,6 +40,7 @@ const SearchRefinements = ({ currencyCode }: { currencyCode: string }) => (
         defaultValue={[
           PRICE_ATTRIBUTE,
           ON_SALE_ATTRIBUTE,
+          BRAND_ATTRIBUTE,
           CATEGORY_ATTRIBUTE,
           OPTION_VALUES_ATTRIBUTE,
         ]}
@@ -47,9 +48,9 @@ const SearchRefinements = ({ currencyCode }: { currencyCode: string }) => (
       >
         <PriceRangeFacet currencyCode={currencyCode} />
         <OnSaleFacet currencyCode={currencyCode} />
+        <CheckboxFacet attribute={BRAND_ATTRIBUTE} title="Brand" />
         <CheckboxFacet attribute={CATEGORY_ATTRIBUTE} title="Categories" />
         <OptionValuesFacet />
-        <CheckboxFacet attribute={LABELS_ATTRIBUTE} title="Labels" />
       </AccordionPrimitive.Root>
     </Container>
   </div>

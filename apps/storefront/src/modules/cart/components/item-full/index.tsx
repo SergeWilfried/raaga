@@ -1,5 +1,7 @@
 "use client"
 
+import { brandLabel } from "@/lib/util/brand"
+
 import { useCart } from "@/lib/context/cart-context"
 import AddNoteButton from "@/modules/cart/components/add-note-button"
 import DeleteButton from "@/modules/common/components/delete-button"
@@ -104,9 +106,7 @@ const ItemFull = ({
         </LocalizedClientLink>
         <div className="flex flex-col gap-y-2 justify-between min-h-full self-stretch">
           <div className="flex flex-col">
-            {brand && (
-              <span className="text-neutral-600 text-xs">{brand}</span>
-            )}
+            <span className="text-neutral-700 text-xs">{brandLabel(brand)}</span>
 
             <span className="txt-medium-plus text-neutral-950">
               {item.product?.title}

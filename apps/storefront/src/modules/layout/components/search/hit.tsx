@@ -16,6 +16,8 @@ export type ProductHit = HitType<
     title: string | null
     handle: string | null
     thumbnail: string | null
+    brand?: string | null
+    part_number?: string | null
   } & Record<string, unknown>
 >
 

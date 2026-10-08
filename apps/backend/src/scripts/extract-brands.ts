@@ -1,11 +1,11 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { updateProductsWorkflow } from "@medusajs/medusa/core-flows";
-import { extractBrand } from "../lib/brands";
+import { extractBrand, normalizeBrand } from "../lib/brands";
 
 // Usage: pnpm medusa exec ./src/scripts/extract-brands.ts
 // Sets metadata.brand from the item name where a known brand appears in it.
-// Re-runnable; leaves a product alone when it already has a brand.
+// Also normalises the spelling of existing brands. Re-runnable.
 export default async function extractBrands({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
@@ -18,9 +18,10 @@ export default async function extractBrands({ container }: ExecArgs) {
   const updates = products
     .map((p) => {
       const existing = (p.metadata ?? {}) as Record<string, unknown>;
-      if (existing.brand) return null;
-      const brand = extractBrand(p.title);
-      return brand
+      const current = normalizeBrand(existing.brand as string | undefined);
+      const brand = current ?? extractBrand(p.title);
+      // Skip when the stored value is already the normalised one.
+      return brand && brand !== existing.brand
         ? { id: p.id, metadata: { ...existing, brand } }
         : null;
     })

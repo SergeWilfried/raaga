@@ -1,3 +1,4 @@
+import { brandLabel } from "@/lib/util/brand"
 import { getProductPrice } from "@/lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import { Text, clx } from "@medusajs/ui"
@@ -5,15 +6,20 @@ import LocalizedClientLink from "@/modules/common/components/localized-client-li
 import Thumbnail from "../thumbnail"
 import PreviewAddToCart from "./preview-add-to-cart"
 import PreviewPrice from "./price"
+import PartRow from "../part-row"
+import PartCard from "../part-row/part-card"
 
 export default async function ProductPreview({
   product,
   isFeatured,
   region,
+  variant = "row",
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
+  /** "row" for lists, "card" for sideways-scrolling grids. */
+  variant?: "row" | "card"
 }) {
   if (!product) {
     return null
@@ -28,6 +34,47 @@ export default async function ProductPreview({
   const inventoryQuantity = product.variants?.reduce((acc, variant) => {
     return acc + (variant?.inventory_quantity || 0)
   }, 0)
+
+  const partNumber = product.variants?.[0]?.sku
+  const stock =
+    inventoryQuantity === undefined ? null : inventoryQuantity > 0 ? (
+      <span>{inventoryQuantity} in stock</span>
+    ) : (
+      <span>Out of stock</span>
+    )
+
+  // Lists show a dense row; the home page rail keeps the card.
+  if (!isFeatured) {
+    const Layout = variant === "card" ? PartCard : PartRow
+    return (
+      <Layout
+        href={`/products/${product.handle}`}
+        title={product.title}
+        brand={brand}
+        partNumber={partNumber}
+        thumbnail={product.thumbnail}
+        images={product.images}
+        stock={stock}
+        price={
+          cheapestPrice ? (
+            <>
+              <PreviewPrice price={cheapestPrice} />
+              <Text className="text-neutral-700 text-xs">Excl. VAT</Text>
+            </>
+          ) : (
+            <Text className="text-ui-fg-base font-medium" data-testid="price-on-request">
+              Price on request
+            </Text>
+          )
+        }
+        action={
+          cheapestPrice ? (
+            <PreviewAddToCart product={product} region={region} />
+          ) : null
+        }
+      />
+    )
+  }
 
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">
@@ -44,11 +91,9 @@ export default async function ProductPreview({
           />
         </div>
         <div className="flex flex-col txt-compact-medium">
-          {brand && (
-            <Text className="text-neutral-600 text-xs" data-testid="product-brand">
-              {brand}
-            </Text>
-          )}
+          <Text className="text-neutral-700 text-xs" data-testid="product-brand">
+            {brandLabel(brand)}
+          </Text>
           <Text className="text-ui-fg-base" data-testid="product-title">
             {product.title}
           </Text>

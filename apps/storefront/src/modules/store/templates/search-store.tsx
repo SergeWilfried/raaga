@@ -1,6 +1,7 @@
 "use client"
 
 import { PRODUCT_INDEX_NAME, searchClient } from "@/lib/search-client"
+import PartSearchBox from "@/modules/store/components/search/part-search-box"
 import AppliedRefinements from "@/modules/store/components/search/applied-refinements"
 import SearchRefinements from "@/modules/store/components/search/search-refinements"
 import SearchResults from "@/modules/store/components/search/search-results"
@@ -29,6 +30,7 @@ const SearchStoreTemplate = ({ currencyCode }: { currencyCode: string }) => (
         <div className="flex flex-col small:flex-row small:items-start gap-3">
           <SearchRefinements currencyCode={currencyCode} />
           <div className="w-full flex flex-col gap-3">
+            <PartSearchBox />
             <AppliedRefinements currencyCode={currencyCode} />
             <SearchResults currencyCode={currencyCode} />
           </div>

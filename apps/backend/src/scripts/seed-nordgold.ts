@@ -14,7 +14,7 @@ import {
   linkSalesChannelsToStockLocationWorkflow,
 } from "@medusajs/medusa/core-flows";
 import { readFileSync } from "fs";
-import { extractBrand } from "../lib/brands";
+import { extractBrand, normalizeBrand } from "../lib/brands";
 import { updateCategoryCounts } from "../lib/category-counts";
 import { join } from "path";
 
@@ -219,7 +219,7 @@ export default async function seedNordgold({ container }: ExecArgs) {
           metadata: {
             client: CLIENT,
             g_code: r.code,
-            brand: r.brand ?? extractBrand(r.description),
+            brand: normalizeBrand(r.brand) ?? extractBrand(r.description),
             equipment: r.equipment,
             manufacturer_part_number: r.mpn,
             unit: r.unit,

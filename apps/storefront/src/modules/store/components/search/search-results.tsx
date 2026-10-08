@@ -3,7 +3,7 @@
 import useSearchSettled from "@/lib/hooks/use-search-settled"
 import type { ProductHit } from "@/modules/layout/components/search/hit"
 import SkeletonProductGrid from "@/modules/skeletons/templates/skeleton-product-grid"
-import { Container, Text } from "@medusajs/ui"
+import { Button, Container, Text } from "@medusajs/ui"
 import { useHits, useInstantSearch, useStats } from "react-instantsearch"
 
 import ProductHitCard from "./product-hit-card"
@@ -12,7 +12,7 @@ import SearchPagination from "./search-pagination"
 const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
   const { items } = useHits<ProductHit>()
   const { nbHits } = useStats()
-  const { status, error } = useInstantSearch()
+  const { status, error, refresh } = useInstantSearch()
   const { isSettled } = useSearchSettled()
 
   if (status === "error") {
@@ -20,15 +20,20 @@ const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
       ?.status
 
     return (
-      <Container className="flex flex-col gap-2 text-center text-sm">
-        <Text className="text-ui-fg-error font-medium">
-          Couldn&apos;t load products{errorStatus ? ` (${errorStatus})` : ""}
+      <Container
+        className="flex flex-col items-center gap-3 py-8 text-center text-sm"
+        role="alert"
+      >
+        <Text className="font-medium text-ui-fg-base">
+          We couldn&apos;t load the parts list.
         </Text>
-        {error?.message && (
-          <Text className="text-ui-fg-error text-xs break-words">
-            {error.message}
-          </Text>
-        )}
+        <Text className="text-neutral-700">
+          Check your connection and try again.
+          {errorStatus ? ` (error ${errorStatus})` : ""}
+        </Text>
+        <Button variant="secondary" onClick={() => refresh()}>
+          Try again
+        </Button>
       </Container>
     )
   }
@@ -49,7 +54,7 @@ const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
         </Container>
       ) : (
         <ul
-          className="grid grid-cols-1 w-full small:grid-cols-3 medium:grid-cols-4 gap-3"
+          className="flex flex-col w-full overflow-hidden rounded-lg border border-neutral-200 bg-white"
           data-testid="products-list"
         >
           {items.map((hit) => (

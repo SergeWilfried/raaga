@@ -21,6 +21,8 @@ const PRODUCT_GRAPH_FIELDS = [
   'description',
   'handle',
   'thumbnail',
+  'images.url',
+  'images.rank',
   'status',
   'created_at',
   'sales_channels.id',
@@ -28,6 +30,8 @@ const PRODUCT_GRAPH_FIELDS = [
   'tags.value',
   'options.title',
   'options.values.value',
+  'metadata',
+  'variants.sku',
 ]
 
 type ProductRow = {
@@ -36,6 +40,7 @@ type ProductRow = {
   description?: string | null
   handle?: string | null
   thumbnail?: string | null
+  images?: ({ url?: string | null; rank?: number | null } | null)[] | null
   status?: string | null
   created_at?: string | Date | null
   deleted_at?: string | Date | null
@@ -43,6 +48,8 @@ type ProductRow = {
   categories?: ({ name?: string | null } | null)[] | null
   tags?: ({ value?: string | null } | null)[] | null
   options?: ProductOptionRow[] | null
+  metadata?: Record<string, unknown> | null
+  variants?: ({ sku?: string | null } | null)[] | null
 }
 
 const productFields = search.define({
@@ -51,6 +58,9 @@ const productFields = search.define({
   status: search.keyword().filterable().retrievable(false),
   sales_channel_ids: search.keyword().array().filterable().retrievable(false),
   title: search.text().searchable({ weight: 3 }).sortable().retrievable(),
+  // The SKU is the part number buyers search by, so it outranks the title.
+  part_number: search.text().searchable({ weight: 5 }).retrievable(),
+  brand: search.keyword().filterable().facetable().retrievable(),
   description: search.text().searchable({ weight: 1 }),
   handle: search.keyword().retrievable(),
   // Returned on hits only: never filtered, sorted or faceted on.
@@ -91,9 +101,24 @@ function toDocument(
     status: product.status ?? null,
     sales_channel_ids: salesChannelIds,
     title: product.title ?? null,
+    part_number:
+      (product.variants ?? [])
+        .map((variant) => variant?.sku?.trim())
+        .filter((sku): sku is string => Boolean(sku))
+        .join(' ') || null,
+    brand:
+      typeof product.metadata?.brand === 'string' && product.metadata.brand.trim()
+        ? product.metadata.brand.trim()
+        : null,
     description: product.description ?? null,
     handle: product.handle ?? null,
-    thumbnail: product.thumbnail ?? null,
+    // Falls back to the first photo when no thumbnail was chosen.
+    thumbnail:
+      product.thumbnail ??
+      [...(product.images ?? [])]
+        .sort((a, b) => (a?.rank ?? 0) - (b?.rank ?? 0))
+        .find((image) => image?.url)?.url ??
+      null,
     created_at: product.created_at ?? null,
     category,
     labels,

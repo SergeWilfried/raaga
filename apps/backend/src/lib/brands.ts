@@ -25,3 +25,21 @@ export function extractBrand(name: string): string | null {
   }
   return null;
 }
+
+/**
+ * One spelling per brand: "CATERPILLAR" and "Caterpillar" must not become two
+ * filter values. Short names stay upper case (SKF, NSK), longer ones are
+ * title-cased word by word ("ATLAS COPCO" -> "Atlas Copco").
+ */
+export function normalizeBrand(brand: string | null | undefined): string | null {
+  const trimmed = brand?.trim();
+  if (!trimmed || trimmed === "#") return null;
+  return trimmed
+    .split(/\s+/)
+    .map((word) =>
+      word.length <= 3
+        ? word.toUpperCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join(" ");
+}

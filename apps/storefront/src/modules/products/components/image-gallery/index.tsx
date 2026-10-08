@@ -2,135 +2,152 @@
 
 import { ArrowLeftMini, ArrowRightMini } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { clx, IconButton } from "@medusajs/ui"
+import { clx } from "@medusajs/ui"
+import PlaceholderImage from "@/modules/common/icons/placeholder-image"
 import Image from "next/image"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+
+type GalleryImage = {
+  id: string
+  url: string
+  alt?: string
+}
 
 type ImageGalleryProps = {
   product: HttpTypes.StoreProduct
 }
 
+/**
+ * Photos of one part. One image shows as a plain picture; several get arrows,
+ * a counter and a strip of thumbnails. Everything is reachable by keyboard, and
+ * the arrow keys only act while the gallery has focus.
+ */
 const ImageGallery = ({ product }: ImageGalleryProps) => {
-  const thumbnail = product?.thumbnail
-  const images = useMemo(() => product?.images || [], [product])
+  const images = useMemo<GalleryImage[]>(() => {
+    const fromProduct = (product.images ?? [])
+      .filter((image) => Boolean(image.url))
+      .map((image) => ({
+        id: image.id,
+        url: image.url,
+        alt: (image.metadata?.alt as string | undefined) || undefined,
+      }))
 
-  const [selectedImage, setSelectedImage] = useState(
-    images[0] || {
-      url: thumbnail,
-      id: "thumbnail",
-    }
-  )
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-
-  const handleArrowClick = useCallback(
-    (direction: "left" | "right") => {
-      if (
-        images.length === 0 ||
-        (selectedImageIndex === 0 && direction === "left") ||
-        (selectedImageIndex === images.length - 1 && direction === "right")
-      ) {
-        return
-      }
-
-      if (direction === "left") {
-        setSelectedImageIndex((prev) => prev - 1)
-        setSelectedImage(images[selectedImageIndex - 1])
-      } else {
-        setSelectedImageIndex((prev) => prev + 1)
-        setSelectedImage(images[selectedImageIndex + 1])
-      }
-    },
-    [images, selectedImageIndex]
-  )
-
-  const handleImageClick = useCallback(
-    (image: HttpTypes.StoreProductImage) => {
-      setSelectedImage(image)
-      setSelectedImageIndex(images.findIndex((img) => img.id === image.id))
-    },
-    [images]
-  )
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement instanceof HTMLInputElement) {
-        return
-      }
-
-      if (e.key === "ArrowLeft") {
-        handleArrowClick("left")
-      } else if (e.key === "ArrowRight") {
-        handleArrowClick("right")
-      }
+    if (fromProduct.length) {
+      return fromProduct
     }
 
-    window.addEventListener("keydown", handleKeyDown)
+    return product.thumbnail
+      ? [{ id: "thumbnail", url: product.thumbnail }]
+      : []
+  }, [product])
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [handleArrowClick])
+  const [index, setIndex] = useState(0)
+
+  const total = images.length
+  const current = total ? images[Math.min(index, total - 1)] : null
+  const goTo = (next: number) =>
+    setIndex(Math.min(total - 1, Math.max(0, next)))
 
   return (
-    <div className="flex flex-col justify-end items-center bg-neutral-100 p-8 pt-0 gap-6 w-full h-full">
-      <div
-        className="relative aspect-[29/34] w-full overflow-hidden"
-        id={selectedImage.id}
-      >
-        <div className="flex p-48">
-          {!!selectedImage.url && (
-            <Image
-              src={selectedImage.url}
-              priority
-              className="absolute inset-0 rounded-rounded p-20 overflow-visible object-contain"
-              alt={(selectedImage.metadata?.alt as string) || ""}
-              fill
-              sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-            />
-          )}
-        </div>
-      </div>
-      <div className="flex small:flex-row flex-col-reverse gap-y-3 justify-between w-full">
-        {images.length > 1 && (
-          <div className="flex flex-row gap-x-2 self-end small:self-auto">
-            <IconButton
-              disabled={selectedImageIndex === 0}
-              className="rounded-full items-center justify-center"
-              onClick={() => handleArrowClick("left")}
-            >
-              <ArrowLeftMini />
-            </IconButton>
-            <IconButton
-              disabled={selectedImageIndex === images.length - 1}
-              className="rounded-full items-center justify-center"
-              onClick={() => handleArrowClick("right")}
-            >
-              <ArrowRightMini />
-            </IconButton>
+    <div
+      className="flex flex-col gap-3 w-full"
+      role="group"
+      aria-roledescription="carousel"
+      aria-label={`Photos of ${product.title}`}
+      tabIndex={total > 1 ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (total < 2) return
+        if (event.key === "ArrowLeft") goTo(index - 1)
+        if (event.key === "ArrowRight") goTo(index + 1)
+      }}
+      data-testid="image-gallery"
+    >
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-neutral-200 bg-white">
+        {current ? (
+          <Image
+            src={current.url}
+            alt={current.alt ?? `${product.title}, photo ${index + 1} of ${total}`}
+            fill
+            priority
+            className="object-contain p-4"
+            sizes="(max-width: 1024px) 100vw, 640px"
+          />
+        ) : (
+          <div
+            className="flex h-full w-full flex-col items-center justify-center gap-2 bg-neutral-100 text-neutral-700"
+            role="img"
+            aria-label="No photo available for this part"
+            data-testid="product-image-placeholder"
+          >
+            <PlaceholderImage size={56} />
+            <span className="text-sm">No photo available</span>
           </div>
         )}
-        <ul className="flex flex-row gap-x-4 overflow-x-auto">
-          {images.map((image, index) => (
-            <li
-              key={image.id}
-              className="flex aspect-[1/1] w-8 h-8 rounded-rounded"
-              onClick={() => handleImageClick(image)}
-              role="button"
+
+        {total > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous photo"
+              disabled={index === 0}
+              onClick={() => goTo(index - 1)}
+              className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 disabled:opacity-40 disabled:hover:bg-white"
             >
-              <Image
-                src={image.url}
-                alt={(image.metadata?.alt as string) || ""}
-                height={32}
-                width={32}
-                className={clx(
-                  index === selectedImageIndex ? "opacity-100" : "opacity-40",
-                  "hover:opacity-100 object-contain"
-                )}
-              />
-            </li>
-          ))}
-        </ul>
+              <ArrowLeftMini />
+            </button>
+            <button
+              type="button"
+              aria-label="Next photo"
+              disabled={index === total - 1}
+              onClick={() => goTo(index + 1)}
+              className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 disabled:opacity-40 disabled:hover:bg-white"
+            >
+              <ArrowRightMini />
+            </button>
+            <span
+              className="absolute bottom-2 right-2 rounded-full bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white"
+              aria-live="polite"
+              data-testid="gallery-counter"
+            >
+              {index + 1} / {total}
+            </span>
+          </>
+        )}
       </div>
+
+      <ul className="flex gap-2 overflow-x-auto p-1" aria-label="Choose a photo" data-testid="gallery-thumbnails">
+        {total === 0 && (
+          <li className="shrink-0" aria-hidden="true">
+            <div className="flex h-16 w-16 items-center justify-center rounded-md border border-dashed border-neutral-300 bg-neutral-100 text-neutral-600">
+              <PlaceholderImage size={24} />
+            </div>
+          </li>
+        )}
+        {images.map((image, i) => (
+            <li key={image.id} className="shrink-0">
+              <button
+                type="button"
+                aria-label={`Show photo ${i + 1} of ${total}`}
+                aria-current={i === index}
+                onClick={() => goTo(i)}
+                className={clx(
+                  "relative block h-16 w-16 overflow-hidden rounded-md border bg-white",
+                  i === index
+                    ? "border-ui-fg-interactive ring-2 ring-ui-fg-interactive"
+                    : "border-neutral-300 opacity-70 hover:opacity-100"
+                )}
+              >
+                <Image
+                  src={image.url}
+                  alt=""
+                  fill
+                  sizes="64px"
+                  className="object-contain p-1"
+                />
+              </button>
+            </li>
+        ))}
+      </ul>
     </div>
   )
 }

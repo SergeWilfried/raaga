@@ -28,13 +28,14 @@ export default function ProductPrice({
         })}
       >
         <Text
-          className="font-medium text-xl"
+          className="font-medium text-3xl text-neutral-950"
           data-testid="product-price"
           data-value={cheapestPrice.calculated_price_number}
         >
-          From {cheapestPrice.calculated_price}
+          {product.variants && product.variants.length > 1 ? "From " : ""}
+          {cheapestPrice.calculated_price}
         </Text>
-        <Text className="text-neutral-600 text-xs">Excl. VAT</Text>
+        <Text className="text-neutral-700 text-sm">Excl. VAT</Text>
       </span>
       {cheapestPrice.price_type === "sale" && (
         <p
