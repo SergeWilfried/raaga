@@ -10,11 +10,14 @@ import SingleVariantBuy from "./single-variant-buy"
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
+  /** Quotes need an account; guests are sent to log in instead. */
+  isLoggedIn?: boolean
 }
 
 export default function ProductActions({
   product,
   region,
+  isLoggedIn = false,
 }: ProductActionsProps) {
   const { cheapestPrice } = getProductPrice({ product })
 
@@ -24,7 +27,11 @@ export default function ProductActions({
     return (
       <div className="flex flex-col gap-4 w-full">
         <ProductPrice product={product} />
-        <QuoteRequest product={product} />
+        <QuoteRequest
+          product={product}
+          region={region}
+          isLoggedIn={isLoggedIn}
+        />
       </div>
     )
   }

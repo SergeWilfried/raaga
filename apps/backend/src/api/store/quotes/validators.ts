@@ -34,6 +34,15 @@ export const CreateQuote = z
   })
   .strict();
 
+export type RequestPartQuoteType = z.infer<typeof RequestPartQuote>;
+export const RequestPartQuote = z
+  .object({
+    variant_id: z.string().min(1),
+    quantity: z.number().int().min(1).max(1_000_000),
+    region_id: z.string().min(1),
+  })
+  .strict();
+
 export type AcceptQuoteType = z.infer<typeof AcceptQuote>;
 export const AcceptQuote = z.object({}).strict();
 

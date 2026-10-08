@@ -5,6 +5,7 @@ import { StoreQuoteResponse } from "@/types"
 import { CalendarMini, DocumentText } from "@medusajs/icons"
 import { Button, clx, Container } from "@medusajs/ui"
 import Image from "next/image"
+import PlaceholderImage from "@/modules/common/icons/placeholder-image"
 import { useMemo } from "react"
 
 type QuoteCardProps = {
@@ -44,21 +45,25 @@ const QuoteCard = ({ quote }: QuoteCardProps) => {
                   }
                 )}
               >
-                <Image
-                  src={item.thumbnail!}
-                  alt={item.title}
-                  className={clx("h-full w-full object-cover object-center", {
-                    "-rotate-3": index === 0 && numItems > 1,
-                    "rotate-0": index === 0 && numItems === 1,
-                    "rotate-3":
-                      (index === 1 && numItems === 2) ||
-                      (index === 2 && numItems > 2),
-                  })}
-                  draggable={false}
-                  quality={50}
-                  width={20}
-                  height={20}
-                />
+                {item.thumbnail ? (
+                  <Image
+                    src={item.thumbnail}
+                    alt={item.title}
+                    className={clx("h-full w-full object-cover object-center", {
+                      "-rotate-3": index === 0 && numItems > 1,
+                      "rotate-0": index === 0 && numItems === 1,
+                      "rotate-3":
+                        (index === 1 && numItems === 2) ||
+                        (index === 2 && numItems > 2),
+                    })}
+                    draggable={false}
+                    quality={50}
+                    width={20}
+                    height={20}
+                  />
+                ) : (
+                  <PlaceholderImage size={14} className="m-auto text-neutral-600" />
+                )}
               </div>
             )
           })}

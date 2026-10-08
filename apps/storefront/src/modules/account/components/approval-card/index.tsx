@@ -8,6 +8,7 @@ import { B2BCart } from "@/types/global"
 import { CheckMini, XMarkMini } from "@medusajs/icons"
 import { clx, Container, Text } from "@medusajs/ui"
 import Image from "next/image"
+import PlaceholderImage from "@/modules/common/icons/placeholder-image"
 
 type ApprovalCardProps = {
   cartWithApprovals: B2BCart
@@ -50,21 +51,25 @@ export default async function ApprovalCard({
                   }
                 )}
               >
-                <Image
-                  src={i.thumbnail!}
-                  alt={i.title}
-                  className={clx("h-full w-full object-cover object-center", {
-                    "-rotate-3": index === 0 && numItems > 1,
-                    "rotate-0": index === 0 && numItems === 1,
-                    "rotate-3":
-                      (index === 1 && numItems === 2) ||
-                      (index === 2 && numItems > 2),
-                  })}
-                  draggable={false}
-                  quality={50}
-                  width={20}
-                  height={20}
-                />
+                {i.thumbnail ? (
+                  <Image
+                    src={i.thumbnail}
+                    alt={i.title}
+                    className={clx("h-full w-full object-cover object-center", {
+                      "-rotate-3": index === 0 && numItems > 1,
+                      "rotate-0": index === 0 && numItems === 1,
+                      "rotate-3":
+                        (index === 1 && numItems === 2) ||
+                        (index === 2 && numItems > 2),
+                    })}
+                    draggable={false}
+                    quality={50}
+                    width={20}
+                    height={20}
+                  />
+                ) : (
+                  <PlaceholderImage size={14} className="m-auto text-neutral-600" />
+                )}
               </div>
             )
           })}

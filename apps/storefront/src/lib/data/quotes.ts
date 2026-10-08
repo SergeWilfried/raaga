@@ -39,6 +39,39 @@ export const createQuote = async () => {
     })
 }
 
+/**
+ * Asks for a quote on a single part that has no listed price. The backend puts
+ * it in a cart at a price of 0 and runs the normal request-for-quote flow; the
+ * merchant sets the price on the quote.
+ */
+export const requestPartQuote = async ({
+  variantId,
+  quantity,
+  regionId,
+}: {
+  variantId: string
+  quantity: number
+  regionId: string
+}) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const response = await sdk.client.fetch<StoreQuoteResponse>(
+    `/store/quotes/request-part`,
+    {
+      method: "POST",
+      body: { variant_id: variantId, quantity, region_id: regionId },
+      headers,
+    }
+  )
+
+  track("quote_created", { quote_id: response.quote.id })
+  revalidateTag(await getCacheTag("quotes"))
+
+  return response
+}
+
 export const fetchQuotes = async (query?: QuoteFilterParams) => {
   const headers = {
     ...(await getAuthHeaders()),
