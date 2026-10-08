@@ -11,6 +11,7 @@ import {
 import { ProductStatus } from "@medusajs/framework/utils";
 import { readFileSync } from "fs";
 import { extractBrand } from "../lib/brands";
+import { categoryFor, CATEGORIES } from "../lib/categories";
 import { updateCategoryCounts } from "../lib/category-counts";
 import {
   MARKUP_PERCENT,
@@ -111,7 +112,7 @@ export default async function seedProducts({ container }: ExecArgs) {
     name: "Default Sales Channel",
   });
 
-  const groups = [...new Set(rows.map((r) => r.group).filter(Boolean))] as string[];
+  const groups = [...CATEGORIES] as string[];
   const { result: categories } = await createProductCategoriesWorkflow(
     container
   ).run({
@@ -129,7 +130,9 @@ export default async function seedProducts({ container }: ExecArgs) {
       title: r.description ?? sku,
       handle: `item-${sku}`.toLowerCase(),
       status: ProductStatus.PUBLISHED,
-      category_ids: categories.filter((c) => c.name === r.group).map((c) => c.id),
+      category_ids: categories
+        .filter((c) => c.name === categoryFor("waghion", r.group))
+        .map((c) => c.id),
       sales_channels: salesChannel ? [{ id: salesChannel.id }] : [],
       metadata: {
         item_code: r.code,

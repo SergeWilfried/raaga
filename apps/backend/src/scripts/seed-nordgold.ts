@@ -16,6 +16,7 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { readFileSync } from "fs";
 import { extractBrand, normalizeBrand } from "../lib/brands";
+import { categoryFor } from "../lib/categories";
 import { updateCategoryCounts } from "../lib/category-counts";
 import { join } from "path";
 
@@ -179,7 +180,9 @@ export default async function seedNordgold({ container }: ExecArgs) {
   }
 
   // --- Categories from the sheet's "Type" column ---------------------------
-  const types = [...new Set(rows.map((r) => r.type).filter(Boolean))] as string[];
+  const types = [
+    ...new Set(rows.map((r) => categoryFor("nordgold", r.type)).filter(Boolean)),
+  ] as string[];
   const { data: existingCats } = await query.graph({
     entity: "product_category",
     fields: ["id", "name"],
@@ -234,7 +237,10 @@ export default async function seedNordgold({ container }: ExecArgs) {
           title: r.description,
           handle: handleOf(r),
           status: ProductStatus.PUBLISHED,
-          category_ids: r.type && categoryIds.has(r.type) ? [categoryIds.get(r.type)!] : [],
+          category_ids: (() => {
+            const name = categoryFor("nordgold", r.type);
+            return name && categoryIds.has(name) ? [categoryIds.get(name)!] : [];
+          })(),
           sales_channels: salesChannel ? [{ id: salesChannel.id }] : [],
           metadata: {
             client: CLIENT,
