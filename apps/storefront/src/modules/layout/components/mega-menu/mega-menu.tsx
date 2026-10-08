@@ -5,6 +5,10 @@ import { clx } from "@medusajs/ui"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
+import { getTopCategories } from "@/lib/util/top-categories"
+
+// The menu shows the busiest categories; the rest are behind "See more".
+const MAX_MENU_CATEGORIES = 8
 
 const MegaMenu = ({
   categories,
@@ -18,8 +22,9 @@ const MegaMenu = ({
 
   const pathname = usePathname()
 
-  const mainCategories = categories.filter(
-    (category) => !category.parent_category_id
+  const { categories: mainCategories, hasMore } = getTopCategories(
+    categories,
+    MAX_MENU_CATEGORIES
   )
 
   const getSubCategories = (categoryId: string) => {
@@ -103,6 +108,15 @@ const MegaMenu = ({
                   {category.name}
                 </LocalizedClientLink>
               ))}
+              {hasMore && (
+                <LocalizedClientLink
+                  href="/store"
+                  className="text-ui-fg-subtle hover:underline px-3 py-2 w-fit"
+                  data-testid="menu-see-more"
+                >
+                  See more
+                </LocalizedClientLink>
+              )}
             </div>
             {selectedCategory && (
               <div className="grid grid-cols-4 gap-16">

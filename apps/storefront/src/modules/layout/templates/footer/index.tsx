@@ -1,5 +1,6 @@
 import { listCategories } from "@/lib/data/categories"
 import { listCollections } from "@/lib/data/collections"
+import { getTopCategories } from "@/lib/util/top-categories"
 import { Text, clx } from "@medusajs/ui"
 
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
@@ -10,10 +11,12 @@ export default async function Footer() {
     offset: "0",
     limit: "6",
   })
-  const product_categories = await listCategories({
-    offset: 0,
-    limit: 6,
-  })
+  const allCategories = await listCategories()
+  // Show the busiest categories; the full list is behind "See more".
+  const { categories: product_categories, hasMore } = getTopCategories(
+    allCategories,
+    6
+  )
 
   return (
     <footer className="border-t border-ui-border-base w-full">
@@ -83,6 +86,17 @@ export default async function Footer() {
                       </li>
                     )
                   })}
+                  {hasMore && (
+                    <li>
+                      <LocalizedClientLink
+                        className="hover:text-ui-fg-base text-ui-fg-subtle"
+                        href="/store"
+                        data-testid="footer-see-more"
+                      >
+                        See more
+                      </LocalizedClientLink>
+                    </li>
+                  )}
                 </ul>
               </div>
             )}
