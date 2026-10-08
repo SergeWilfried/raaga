@@ -30,7 +30,7 @@ export const getProductsById = async ({
         id: ids,
         region_id: regionId,
         fields:
-          "*variants,*variants.calculated_price,*variants.inventory_quantity",
+          "*variants,*variants.calculated_price,*variants.inventory_quantity,+metadata",
       },
       headers,
       next,
@@ -106,7 +106,8 @@ export const listProducts = async ({
           limit,
           offset,
           region_id: region.id,
-          fields: "*variants.calculated_price,*variants.options",
+          fields:
+            "*variants.calculated_price,*variants.options,+variants.inventory_quantity,+metadata",
           ...queryParams,
         },
         headers,

@@ -23,6 +23,8 @@ export default async function ProductPreview({
     product,
   })
 
+  const brand = (product.metadata?.brand as string | undefined) || undefined
+
   const inventoryQuantity = product.variants?.reduce((acc, variant) => {
     return acc + (variant?.inventory_quantity || 0)
   }, 0)
@@ -42,7 +44,11 @@ export default async function ProductPreview({
           />
         </div>
         <div className="flex flex-col txt-compact-medium">
-          <Text className="text-neutral-600 text-xs">BRAND</Text>
+          {brand && (
+            <Text className="text-neutral-600 text-xs" data-testid="product-brand">
+              {brand}
+            </Text>
+          )}
           <Text className="text-ui-fg-base" data-testid="product-title">
             {product.title}
           </Text>

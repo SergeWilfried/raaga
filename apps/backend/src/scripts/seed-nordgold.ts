@@ -13,6 +13,7 @@ import {
   linkSalesChannelsToStockLocationWorkflow,
 } from "@medusajs/medusa/core-flows";
 import { readFileSync } from "fs";
+import { extractBrand } from "../lib/brands";
 import { join } from "path";
 
 type Row = {
@@ -215,7 +216,7 @@ export default async function seedNordgold({ container }: ExecArgs) {
           metadata: {
             client: CLIENT,
             g_code: r.code,
-            brand: r.brand,
+            brand: r.brand ?? extractBrand(r.description),
             equipment: r.equipment,
             manufacturer_part_number: r.mpn,
             unit: r.unit,

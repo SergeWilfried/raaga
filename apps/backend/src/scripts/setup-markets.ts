@@ -180,7 +180,7 @@ export default async function setupMarkets({ container }: ExecArgs) {
     })),
   });
 
-  logger.info("Price preferences (tax inclusive)...");
+  logger.info("Price preferences (tax exclusive: tax is added at checkout)...");
   const existing = await pricing.listPricePreferences();
   const wanted = [
     { attribute: "currency_code", value: "xof" },
@@ -199,9 +199,9 @@ export default async function setupMarkets({ container }: ExecArgs) {
       (p) => p.attribute === w.attribute && p.value === w.value
     );
     if (found) {
-      await pricing.updatePricePreferences(found.id, { is_tax_inclusive: true });
+      await pricing.updatePricePreferences(found.id, { is_tax_inclusive: false });
     } else {
-      await pricing.createPricePreferences({ ...w, is_tax_inclusive: true });
+      await pricing.createPricePreferences({ ...w, is_tax_inclusive: false });
     }
   }
 

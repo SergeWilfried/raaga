@@ -85,6 +85,7 @@ const ItemFull = ({
   }
 
   const maxQuantity = item.variant?.inventory_quantity ?? 100
+  const brand = (item.product?.metadata?.brand as string | undefined) || undefined
 
   return (
     <Container
@@ -103,7 +104,9 @@ const ItemFull = ({
         </LocalizedClientLink>
         <div className="flex flex-col gap-y-2 justify-between min-h-full self-stretch">
           <div className="flex flex-col">
-            <span className="text-neutral-600 text-[0.6rem]">BRAND</span>
+            {brand && (
+              <span className="text-neutral-600 text-[0.6rem]">{brand}</span>
+            )}
 
             <span className="txt-medium-plus text-neutral-950">
               {item.product?.title}

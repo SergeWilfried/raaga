@@ -10,6 +10,12 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { ProductStatus } from "@medusajs/framework/utils";
 import { readFileSync } from "fs";
+import { extractBrand } from "../lib/brands";
+import {
+  MARKUP_PERCENT,
+  VAT_PERCENT,
+  waghionPrices,
+} from "../lib/waghion-pricing";
 import { join } from "path";
 
 type Row = {
@@ -27,9 +33,6 @@ type Row = {
   unit_price_xof: number;
 };
 
-// The sheet's unit price is TTC (tax included); the markup goes on top of it.
-const MARKUP_PERCENT = 20;
-const XOF_PER_USD = 600;
 const WAREHOUSE_NAME = "Waghion Warehouse";
 
 // Usage: pnpm medusa exec ./src/scripts/seed-products.ts
@@ -54,6 +57,19 @@ export default async function seedProducts({ container }: ExecArgs) {
     );
   }
   const warehouse = locations[0];
+
+  // This script wipes the whole catalog first; refuse once other clients' items exist.
+  const { data: others } = await query.graph({
+    entity: "product",
+    fields: ["id"],
+    filters: { handle: { $like: "nordgold-%" } } as any,
+  });
+  if (others.length) {
+    throw new Error(
+      "Nordgold products exist; this script would delete them. " +
+        "Use update-waghion-prices.ts to change prices instead."
+    );
+  }
 
   logger.info("Removing existing products and categories...");
   const { data: existingProducts } = await query.graph({
@@ -107,8 +123,7 @@ export default async function seedProducts({ container }: ExecArgs) {
   const products = rows.map((r) => {
     const suffix = r.dup > 1 ? `-${r.dup}` : "";
     const sku = `${r.code}${suffix}`;
-    const xof = Math.round(r.unit_price_xof * (1 + MARKUP_PERCENT / 100));
-    const usd = Math.round((xof / XOF_PER_USD) * 100) / 100;
+    const { xof, usd } = waghionPrices(r.unit_price_xof);
     return {
       title: r.description ?? sku,
       handle: `item-${sku}`.toLowerCase(),
@@ -117,6 +132,7 @@ export default async function seedProducts({ container }: ExecArgs) {
       sales_channels: salesChannel ? [{ id: salesChannel.id }] : [],
       metadata: {
         item_code: r.code,
+        brand: extractBrand(r.description ?? ""),
         gtin: r.gtin,
         unit: r.unit,
         condition: r.condition,
@@ -126,6 +142,7 @@ export default async function seedProducts({ container }: ExecArgs) {
         equipment_serial: r.equipment_serial,
         unit_price_xof: r.unit_price_xof,
         markup_percent: MARKUP_PERCENT,
+        vat_percent: VAT_PERCENT,
       },
       options: [{ title: "Unit", values: [r.unit ?? "EACH"] }],
       variants: [
