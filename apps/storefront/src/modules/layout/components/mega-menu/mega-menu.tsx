@@ -83,11 +83,24 @@ const MegaMenu = ({
       <div
         onMouseEnter={handleMenuHover}
         onMouseLeave={handleMenuLeave}
+        // Keyboard users open the menu by tabbing into it and close it by
+        // tabbing out or pressing Escape.
+        onFocus={() => setIsHovered(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+            setIsHovered(false)
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setIsHovered(false)
+        }}
         className="z-50"
       >
         <LocalizedClientLink
           className="hover:text-ui-fg-base hover:bg-neutral-100 rounded-full px-3 py-2"
           href="/store"
+          aria-haspopup="true"
+          aria-expanded={isHovered}
         >
           Products
         </LocalizedClientLink>
@@ -104,6 +117,7 @@ const MegaMenu = ({
                   )}
                   onMouseEnter={() => handleCategoryHover(category.id)}
                   onMouseLeave={handleCategoryLeave}
+                  onFocus={() => setSelectedCategory(category.id)}
                 >
                   {category.name}
                 </LocalizedClientLink>

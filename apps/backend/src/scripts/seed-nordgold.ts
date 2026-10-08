@@ -10,6 +10,7 @@ import {
   createProductsWorkflow,
   createShippingOptionsWorkflow,
   createStockLocationsWorkflow,
+  deleteProductsWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
 } from "@medusajs/medusa/core-flows";
 import { readFileSync } from "fs";
@@ -203,8 +204,9 @@ export default async function seedNordgold({ container }: ExecArgs) {
   const todo = rows.filter((r) => !have.has(handleOf(r)));
   logger.info(`${have.size} already present, creating ${todo.length}...`);
 
-  for (let i = 0; i < todo.length; i += BATCH) {
-    const chunk = todo.slice(i, i + BATCH);
+  // One batch: create the products, then stock them. Wrapped so a dropped
+  // connection retries the batch instead of ending a multi-hour run.
+  const processChunk = async (chunk: Row[]) => {
     await createProductsWorkflow(container).run({
       input: {
         products: chunk.map((r) => ({
@@ -259,6 +261,36 @@ export default async function seedNordgold({ container }: ExecArgs) {
       await createInventoryLevelsWorkflow(container).run({
         input: { inventory_levels: levels },
       });
+    }
+  }
+
+  for (let i = 0; i < todo.length; i += BATCH) {
+    const chunk = todo.slice(i, i + BATCH);
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await processChunk(chunk);
+        break;
+      } catch (error) {
+        if (attempt >= 5) throw error;
+        logger.warn(
+          `Batch at ${i} failed (attempt ${attempt}/5): ${
+            error instanceof Error ? error.message : error
+          }. Cleaning up and retrying in ${attempt * 15}s...`
+        );
+        // Remove any products from this batch that were left without variants.
+        const { data: partial } = await query.graph({
+          entity: "product",
+          fields: ["id", "variants.id"],
+          filters: { handle: chunk.map(handleOf) },
+        });
+        const broken = partial.filter((p: any) => !p.variants?.length);
+        if (broken.length) {
+          await deleteProductsWorkflow(container).run({
+            input: { ids: broken.map((p: any) => p.id) },
+          });
+        }
+        await new Promise((r) => setTimeout(r, attempt * 15000));
+      }
     }
     if ((i / BATCH) % 10 === 0 || i + BATCH >= todo.length) {
       logger.info(`  ${Math.min(i + BATCH, todo.length)}/${todo.length}`);

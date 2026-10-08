@@ -11,8 +11,13 @@ export default function ProductPrice({
     product,
   })
 
+  // No price set (quote-only item): say so instead of showing a loading bar.
   if (!cheapestPrice) {
-    return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
+    return (
+      <Text className="font-medium text-xl text-neutral-950" data-testid="product-price-on-request">
+        Price on request
+      </Text>
+    )
   }
 
   return (
@@ -29,7 +34,7 @@ export default function ProductPrice({
         >
           From {cheapestPrice.calculated_price}
         </Text>
-        <Text className="text-neutral-600 text-[0.6rem]">Excl. VAT</Text>
+        <Text className="text-neutral-600 text-xs">Excl. VAT</Text>
       </span>
       {cheapestPrice.price_type === "sale" && (
         <p

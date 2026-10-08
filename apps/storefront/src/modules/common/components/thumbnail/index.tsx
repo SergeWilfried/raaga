@@ -12,7 +12,7 @@ export const Thumbnail = ({ src, alt }: ThumbnailProps) => {
       {src ? (
         <Image
           src={src}
-          alt={alt! || "test"}
+          alt={alt ?? ""}
           className="h-full w-full object-cover object-center"
           draggable={false}
           quality={50}

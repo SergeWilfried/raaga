@@ -69,8 +69,13 @@ const ProductHitCard = ({
                 </Text>
               )}
             </div>
-            <Text className="text-neutral-600 text-[0.6rem]">Excl. VAT</Text>
+            <Text className="text-neutral-600 text-xs">Excl. VAT</Text>
           </div>
+        )}
+        {pricing.min_price === null && (
+          <Text className="text-ui-fg-base font-medium" data-testid="price-on-request">
+            Price on request
+          </Text>
         )}
       </div>
     </LocalizedClientLink>

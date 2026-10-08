@@ -105,7 +105,7 @@ const ItemFull = ({
         <div className="flex flex-col gap-y-2 justify-between min-h-full self-stretch">
           <div className="flex flex-col">
             {brand && (
-              <span className="text-neutral-600 text-[0.6rem]">{brand}</span>
+              <span className="text-neutral-600 text-xs">{brand}</span>
             )}
 
             <span className="txt-medium-plus text-neutral-950">
@@ -125,26 +125,29 @@ const ItemFull = ({
               <div className="flex gap-x-3 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] rounded-full w-fit p-px items-center">
                 <button
                   className={clx(
-                    "w-4 h-4 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 rounded-full text-md",
+                    "w-10 h-10 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 rounded-full text-md",
                     disabled ? "opacity-50 pointer-events-none" : "opacity-100"
                   )}
+                  type="button"
+                  aria-label={`Decrease quantity of ${item.product?.title ?? "item"}`}
                   onClick={() => changeQuantity(item.quantity - 1)}
                   disabled={item.quantity <= 1 || disabled}
                 >
                   -
                 </button>
-                <span className="w-4 h-4 flex items-center justify-center text-neutral-950 text-xs">
+                <span className="h-10 flex items-center justify-center text-neutral-950 text-xs">
                   {updating ? (
                     <Spinner size="12" />
                   ) : (
                     <Input
                       className={clx(
-                        "w-10 h-4 flex items-center justify-center text-center text-neutral-950 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent shadow-none",
+                        "w-12 h-10 flex items-center justify-center text-center text-neutral-950 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent shadow-none",
                         disabled
                           ? "opacity-50 pointer-events-none"
                           : "opacity-100"
                       )}
                       type="number"
+                      aria-label={`Quantity of ${item.product?.title ?? "item"}`}
                       value={quantity}
                       onChange={(e) => {
                         setQuantity(e.target.value)
@@ -159,9 +162,11 @@ const ItemFull = ({
                 </span>
                 <button
                   className={clx(
-                    "w-4 h-4 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 rounded-full text-md",
+                    "w-10 h-10 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 rounded-full text-md",
                     disabled ? "opacity-50 pointer-events-none" : "opacity-100"
                   )}
+                  type="button"
+                  aria-label={`Increase quantity of ${item.product?.title ?? "item"}`}
                   onClick={() => changeQuantity(item.quantity + 1)}
                   disabled={item.quantity >= maxQuantity || disabled}
                 >
