@@ -9,7 +9,7 @@ import { useState } from "react"
 import QuantityStepper from "../quantity-stepper"
 
 const buttonClass =
-  "flex h-11 w-full items-center justify-center rounded-lg border border-neutral-900 bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-fg-interactive focus-visible:ring-offset-2 disabled:opacity-60"
+  "flex h-11 w-full items-center justify-center rounded-lg border border-transparent bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-fg-interactive focus-visible:ring-offset-2 disabled:opacity-60"
 
 /**
  * The buy block for a part without a listed price. It can't go in the cart, so

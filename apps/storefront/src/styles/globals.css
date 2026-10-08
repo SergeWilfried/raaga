@@ -2,6 +2,12 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+:root {
+  /* Iron-oxide red-orange: the action colour across the shop and the landing page. */
+  --brand: oklch(0.52 0.16 38);
+  --brand-hover: oklch(0.46 0.15 38);
+}
+
 @layer utilities {
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -108,5 +114,34 @@
 
   .text-3xl-semi {
     @apply text-[32px] leading-[44px] font-semibold;
+  }
+}
+
+/* Landing page: one entrance on load. The text is visible without it, so a
+   paused or skipped animation never hides content. */
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.landing-rise {
+  animation: landing-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.landing-rise-2 {
+  animation-delay: 90ms;
+}
+.landing-rise-3 {
+  animation-delay: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-rise {
+    animation: none;
   }
 }

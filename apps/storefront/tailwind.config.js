@@ -23,8 +23,13 @@ module.exports = {
         xlarge: "1680px",
         "2xlarge": "1920px",
       },
+      colors: {
+        brand: "var(--brand)",
+        "brand-hover": "var(--brand-hover)",
+      },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
+        display: ["var(--font-archivo)", "var(--font-geist-sans)", "sans-serif"],
       },
       keyframes: {
         "accordion-open": {
