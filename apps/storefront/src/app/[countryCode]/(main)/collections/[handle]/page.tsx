@@ -41,7 +41,8 @@ export async function generateStaticParams() {
   )
 
   const staticParams = countryCodes
-    ?.map((countryCode: string) =>
+    ?.filter((c: string) => c === (process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"))
+    .map((countryCode: string) =>
       collectionHandles.map((handle: string | undefined) => ({
         countryCode,
         handle,

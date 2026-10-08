@@ -53,6 +53,7 @@ export async function generateStaticParams() {
   const categories = await listCategories()
 
   return countryCodes
+    .filter((c) => c === (process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"))
     .map((countryCode) =>
       categories.map((category) => ({
         countryCode,

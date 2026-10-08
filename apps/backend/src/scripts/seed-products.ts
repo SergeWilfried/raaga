@@ -1,7 +1,9 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import {
+  createInventoryLevelsWorkflow,
   createProductCategoriesWorkflow,
+  deleteInventoryItemWorkflow,
   createProductsWorkflow,
   deleteProductCategoriesWorkflow,
   deleteProductsWorkflow,
@@ -25,8 +27,10 @@ type Row = {
   unit_price_xof: number;
 };
 
-// XOF is pegged to the euro at a fixed rate; the region sells in EUR.
-const XOF_PER_EUR = 655.957;
+// The sheet's unit price is TTC (tax included); the markup goes on top of it.
+const MARKUP_PERCENT = 20;
+const XOF_PER_USD = 600;
+const WAREHOUSE_NAME = "Waghion Warehouse";
 
 // Usage: pnpm medusa exec ./src/scripts/seed-products.ts
 export default async function seedProducts({ container }: ExecArgs) {
@@ -38,6 +42,18 @@ export default async function seedProducts({ container }: ExecArgs) {
   const rows: Row[] = JSON.parse(
     readFileSync(join(process.cwd(), "seed", "products.json"), "utf-8")
   );
+
+  const { data: locations } = await query.graph({
+    entity: "stock_location",
+    fields: ["id", "name"],
+    filters: { name: WAREHOUSE_NAME },
+  });
+  if (!locations.length) {
+    throw new Error(
+      `Stock location "${WAREHOUSE_NAME}" not found; run setup-markets.ts first.`
+    );
+  }
+  const warehouse = locations[0];
 
   logger.info("Removing existing products and categories...");
   const { data: existingProducts } = await query.graph({
@@ -56,6 +72,15 @@ export default async function seedProducts({ container }: ExecArgs) {
   if (existingCategories.length) {
     await deleteProductCategoriesWorkflow(container).run({
       input: existingCategories.map((c) => c.id),
+    });
+  }
+  const { data: existingInventory } = await query.graph({
+    entity: "inventory_item",
+    fields: ["id"],
+  });
+  if (existingInventory.length) {
+    await deleteInventoryItemWorkflow(container).run({
+      input: existingInventory.map((i) => i.id),
     });
   }
   const existingCollections = await productService.listProductCollections();
@@ -82,7 +107,8 @@ export default async function seedProducts({ container }: ExecArgs) {
   const products = rows.map((r) => {
     const suffix = r.dup > 1 ? `-${r.dup}` : "";
     const sku = `${r.code}${suffix}`;
-    const eur = Math.round((r.unit_price_xof / XOF_PER_EUR) * 100) / 100;
+    const xof = Math.round(r.unit_price_xof * (1 + MARKUP_PERCENT / 100));
+    const usd = Math.round((xof / XOF_PER_USD) * 100) / 100;
     return {
       title: r.description ?? sku,
       handle: `item-${sku}`.toLowerCase(),
@@ -99,6 +125,7 @@ export default async function seedProducts({ container }: ExecArgs) {
         equipment_model: r.equipment_model,
         equipment_serial: r.equipment_serial,
         unit_price_xof: r.unit_price_xof,
+        markup_percent: MARKUP_PERCENT,
       },
       options: [{ title: "Unit", values: [r.unit ?? "EACH"] }],
       variants: [
@@ -106,8 +133,11 @@ export default async function seedProducts({ container }: ExecArgs) {
           title: r.unit ?? "EACH",
           sku,
           options: { Unit: r.unit ?? "EACH" },
-          manage_inventory: false,
-          prices: [{ amount: eur, currency_code: "eur" }],
+          manage_inventory: true,
+          prices: [
+            { amount: xof, currency_code: "xof" },
+            { amount: usd, currency_code: "usd" },
+          ],
         },
       ],
     };
@@ -120,5 +150,25 @@ export default async function seedProducts({ container }: ExecArgs) {
     });
     logger.info(`  ${Math.min(i + batchSize, products.length)}/${products.length}`);
   }
-  logger.info("Finished seeding products.");
+  logger.info(`Stocking ${WAREHOUSE_NAME}...`);
+  const qtyBySku = new Map(
+    rows.map((r) => [`${r.code}${r.dup > 1 ? `-${r.dup}` : ""}`, r.qty])
+  );
+  const { data: variants } = await query.graph({
+    entity: "product_variant",
+    fields: ["sku", "inventory_items.inventory_item_id"],
+  });
+  const levels = variants.flatMap((v) =>
+    (v.inventory_items ?? []).map((ii: any) => ({
+      location_id: warehouse.id,
+      inventory_item_id: ii.inventory_item_id,
+      stocked_quantity: qtyBySku.get(v.sku!) ?? 0,
+    }))
+  );
+  for (let i = 0; i < levels.length; i += batchSize) {
+    await createInventoryLevelsWorkflow(container).run({
+      input: { inventory_levels: levels.slice(i, i + batchSize) },
+    });
+  }
+  logger.info(`Finished seeding products (${levels.length} stocked).`);
 }

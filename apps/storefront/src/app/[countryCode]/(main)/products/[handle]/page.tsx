@@ -8,6 +8,9 @@ import { notFound } from "next/navigation"
 
 export const dynamicParams = true
 
+const DEFAULT_COUNTRY = process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"
+const PRERENDER_PRODUCTS = 50
+
 type Props = {
   params: { countryCode: string; handle: string }
 }
@@ -22,12 +25,18 @@ export async function generateStaticParams() {
       return []
     }
 
+    // Pre-render only the default country; other countries and the rest of
+    // the catalog render on demand (dynamicParams) so builds stay fast.
+    const prerenderCountries = countryCodes.filter(
+      (c) => c === DEFAULT_COUNTRY
+    )
+
     const { products } = await sdk.store.product.list(
-      { fields: "handle" },
+      { fields: "handle", limit: PRERENDER_PRODUCTS },
       { next: { tags: ["products"] }, ...(await getAuthHeaders()) }
     )
 
-    return countryCodes
+    return prerenderCountries
       .map((countryCode) =>
         products.map((product) => ({
           countryCode,
