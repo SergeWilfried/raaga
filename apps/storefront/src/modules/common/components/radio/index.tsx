@@ -2,17 +2,21 @@ const Radio = ({
   checked,
   "data-testid": dataTestId,
   disabled,
+  decorative,
 }: {
   checked: boolean
   "data-testid"?: string
   disabled?: boolean
+  /** A visual marker inside a link or label that already names the choice. */
+  decorative?: boolean
 }) => {
   return (
     <>
       <button
         type="button"
         role="radio"
-        aria-checked="true"
+        aria-checked={checked}
+        {...(decorative ? { "aria-hidden": true, tabIndex: -1 } : {})}
         data-state={checked ? "checked" : "unchecked"}
         className="group relative flex h-5 w-5 items-center justify-center outline-none"
         data-testid={dataTestId || "radio-button"}

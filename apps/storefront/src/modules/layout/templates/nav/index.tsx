@@ -5,7 +5,7 @@ import AccountButton from "@/modules/account/components/account-button"
 import CartButton from "@/modules/cart/components/cart-button"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import FilePlus from "@/modules/common/icons/file-plus"
-import LogoIcon from "@/modules/common/icons/logo"
+import Wordmark from "@/modules/common/components/wordmark"
 import { MegaMenuWrapper } from "@/modules/layout/components/mega-menu"
 import Search from "@/modules/layout/components/search"
 import { RequestQuoteConfirmation } from "@/modules/quotes/components/request-quote-confirmation"
@@ -32,10 +32,7 @@ export async function NavigationHeader({
               className="hover:text-ui-fg-base flex items-center w-fit"
               href="/"
             >
-              <span className="small:text-base text-sm font-medium flex items-center">
-                <LogoIcon className="inline mr-2" />
-                Raaga
-              </span>
+              <Wordmark />
             </LocalizedClientLink>
 
             <nav>

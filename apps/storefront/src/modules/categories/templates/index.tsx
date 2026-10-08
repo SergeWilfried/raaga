@@ -40,6 +40,9 @@ export default function CategoryTemplate({
           categories={categories}
           category={currentCategory}
         />
+        <h1 className="font-display text-3xl font-black uppercase leading-none text-ui-fg-base [font-variation-settings:'wdth'_72] small:text-4xl">
+          {currentCategory.name}
+        </h1>
         <div className="flex flex-col small:flex-row small:items-start gap-3">
           <RefinementList
             sortBy={sort}

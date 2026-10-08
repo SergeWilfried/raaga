@@ -10,6 +10,7 @@ const copy = {
     metaTitle: "Raaga | Mining Spare Parts in West Africa",
     metaDescription:
       "Find mining spare parts held in West Africa by part number, brand or machine. See live stock and pre-tax prices, or request a quote.",
+    storeHeading: "All parts",
     storeTitle: "All Mining Spare Parts | Raaga",
     storeDescription:
       "Browse every part in stock. Search by part number, brand or category; prices are shown before tax.",
@@ -75,6 +76,7 @@ const copy = {
     metaTitle: "Raaga | Pièces détachées minières en Afrique de l'Ouest",
     metaDescription:
       "Trouvez des pièces détachées minières disponibles en Afrique de l'Ouest par référence, marque ou machine. Stock en temps réel, prix HT, ou demandez un devis.",
+    storeHeading: "Toutes les pièces",
     storeTitle: "Toutes les pièces détachées minières | Raaga",
     storeDescription:
       "Parcourez toutes les pièces en stock. Recherchez par référence, marque ou catégorie ; les prix sont affichés hors taxes.",

@@ -11,13 +11,22 @@ import { Configure, InstantSearch } from "react-instantsearch"
 
 const HITS_PER_PAGE = 12
 
-const SearchStoreTemplate = ({ currencyCode }: { currencyCode: string }) => (
+const SearchStoreTemplate = ({
+  currencyCode,
+  heading,
+}: {
+  currencyCode: string
+  heading: string
+}) => (
   <div className="bg-neutral-100">
     <div
       className="flex flex-col py-6 content-container gap-4"
       data-testid="category-container"
     >
       <StoreBreadcrumb />
+      <h1 className="font-display text-3xl font-black uppercase leading-none text-ui-fg-base [font-variation-settings:'wdth'_72] small:text-4xl">
+        {heading}
+      </h1>
 
       <InstantSearch
         indexName={PRODUCT_INDEX_NAME}

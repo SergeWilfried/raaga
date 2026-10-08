@@ -86,7 +86,11 @@ const CategoryList = ({
         <div className={`flex items-center gap-2 mb-2 pl-${paddingLeft}`}>
           {hasChildren ? (
             <div className="flex items-center gap-2 hover:text-neutral-700">
-              <button onClick={() => toggleCategory(category.id)}>
+              <button
+                onClick={() => toggleCategory(category.id)}
+                aria-label={`${isExpanded ? "Collapse" : "Expand"} ${category.name}`}
+                aria-expanded={isExpanded}
+              >
                 {isExpanded ? (
                   <SquareMinus className="h-3 mx-1" />
                 ) : (
@@ -109,7 +113,7 @@ const CategoryList = ({
               }`}
               className="flex gap-2 items-center hover:text-neutral-700 text-start hover:cursor-pointer"
             >
-              <Radio checked={isCurrentCategory(category.handle)} />
+              <Radio decorative checked={isCurrentCategory(category.handle)} />
               {category.name} ({categoryProductCount(category)})
             </LocalizedClientLink>
           )}
