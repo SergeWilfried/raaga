@@ -15,5 +15,5 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function Page(props: Props) {
-  return <InfoPage pageKey="suppliers" lang={await pageLang(props.searchParams)} showContact />
+  return <InfoPage pageKey="suppliers" lang={await pageLang(props.searchParams)} showContact download="/raaga-parts-sheet-template.csv" />
 }

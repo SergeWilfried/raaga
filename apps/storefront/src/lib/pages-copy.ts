@@ -15,8 +15,8 @@ const pages: Record<PageKey, Record<Lang, PageCopy>> = {
   about: {
     en: {
       title: "About Raaga",
-      description: "Raaga is an online catalogue of mining spare parts held in West Africa.",
-      intro: "Raaga is an online catalogue of mining spare parts held in West Africa.",
+      description: "Raaga is an online marketplace for spare parts held at mines and industrial sites in West Africa.",
+      intro: "Raaga is an online marketplace for spare parts held at mines and industrial sites in West Africa. Buying from a site in the region means shorter lead times and less freight than an overseas order.",
       sections: [
         {
           heading: "What you can do here",
@@ -36,8 +36,8 @@ const pages: Record<PageKey, Record<Lang, PageCopy>> = {
     },
     fr: {
       title: "À propos de Raaga",
-      description: "Raaga est un catalogue en ligne de pièces détachées minières disponibles en Afrique de l'Ouest.",
-      intro: "Raaga est un catalogue en ligne de pièces détachées minières disponibles en Afrique de l'Ouest.",
+      description: "Raaga est une place de marché de pièces détachées détenues par des mines et sites industriels d'Afrique de l'Ouest.",
+      intro: "Raaga est une place de marché de pièces détachées détenues par des mines et sites industriels d'Afrique de l'Ouest. Acheter auprès d'un site de la région, c'est des délais plus courts et moins de fret qu'une commande à l'étranger.",
       sections: [
         {
           heading: "Ce que vous pouvez faire ici",
@@ -88,38 +88,52 @@ const pages: Record<PageKey, Record<Lang, PageCopy>> = {
   },
   suppliers: {
     en: {
-      title: "For suppliers",
-      description: "Have surplus or slow-moving mining spare parts to sell?",
-      intro: "Have surplus or slow-moving mining spare parts to sell?",
+      title: "Sell your surplus",
+      description: "Send us your surplus spare parts list and we will list it on the shop.",
+      intro: "Do your mine or site hold surplus or slow-moving spare parts? Turn them into cash by selling them to buyers across West Africa.",
       sections: [
         {
-          heading: "What to send us",
+          heading: "How it works",
           body: [
-            "For each item: part number, description, brand, quantity and condition.",
-            "Where the stock is held.",
+            "1. Fill in the sheet below with your parts and send it to us.",
+            "2. We upload it to the shop, so buyers can find your parts.",
+            "3. We arrange payment with you.",
           ],
         },
         {
-          heading: "What happens next",
-          body: ["Send us your list and we will get back to you about how it could be listed."],
+          heading: "What the sheet needs",
+          body: [
+            "For each part: part number, description, brand, quantity, unit, condition and where it is held. A price per unit is optional; without one, buyers request a quote.",
+          ],
+        },
+        {
+          heading: "Who can sell",
+          body: ["Mines, quarries and other industrial sites with surplus or slow-moving spare parts."],
         },
       ],
     },
     fr: {
-      title: "Pour les fournisseurs",
-      description: "Vous avez des pièces détachées minières excédentaires ou à rotation lente à vendre ?",
-      intro: "Vous avez des pièces détachées minières excédentaires ou à rotation lente à vendre ?",
+      title: "Vendez vos surplus",
+      description: "Envoyez-nous votre liste de pièces en surplus et nous la mettrons en ligne sur la boutique.",
+      intro: "Votre mine ou votre site détient-il des pièces détachées en surplus ou à rotation lente ? Transformez-les en argent en les vendant à des acheteurs d'Afrique de l'Ouest.",
       sections: [
         {
-          heading: "Ce qu'il faut nous envoyer",
+          heading: "Comment ça marche",
           body: [
-            "Pour chaque article : référence, description, marque, quantité et état.",
-            "Le lieu où se trouve le stock.",
+            "1. Remplissez le fichier ci-dessous avec vos pièces et envoyez-le-nous.",
+            "2. Nous le mettons en ligne sur la boutique, pour que les acheteurs trouvent vos pièces.",
+            "3. Nous convenons du paiement avec vous.",
           ],
         },
         {
-          heading: "La suite",
-          body: ["Envoyez-nous votre liste et nous reviendrons vers vous sur la façon de la référencer."],
+          heading: "Ce que le fichier doit contenir",
+          body: [
+            "Pour chaque pièce : référence, description, marque, quantité, unité, état et lieu de stockage. Un prix unitaire est facultatif ; sans prix, les acheteurs demandent un devis.",
+          ],
+        },
+        {
+          heading: "Qui peut vendre",
+          body: ["Les mines, carrières et autres sites industriels détenant des pièces détachées en surplus ou à rotation lente."],
         },
       ],
     },
@@ -181,6 +195,11 @@ const pages: Record<PageKey, Record<Lang, PageCopy>> = {
 }
 
 export const getPageCopy = (key: PageKey, lang: Lang) => pages[key][lang]
+
+export const downloadLabel = {
+  en: "Download the sheet template (CSV)",
+  fr: "Télécharger le modèle de fichier (CSV)",
+} as const
 
 export const draftNotice = {
   en: "Draft: this text is pending legal review.",

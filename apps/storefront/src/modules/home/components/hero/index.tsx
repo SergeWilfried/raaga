@@ -1,3 +1,4 @@
+import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import Image from "next/image"
 import LandingSearch from "../landing-search"
 import { getLandingCopy, Lang } from "@/lib/landing-copy"
@@ -12,12 +13,10 @@ const HERO_PHOTO =
 const Hero = ({ lang }: { lang: Lang }) => {
   const t = getLandingCopy(lang)
 
-  // French runs about 20% longer; a narrower cut at a smaller size keeps each
-  // half of the headline on one line, as in English.
+  // One size for both languages: the second line ("Already in the region.")
+  // is long, so the headline is set narrower than a single short line would be.
   const headlineSize =
-    lang === "fr"
-      ? "text-[clamp(2.1rem,6vw,4.75rem)] [font-variation-settings:'wdth'_62]"
-      : "text-[clamp(2.4rem,7.5vw,6rem)] [font-variation-settings:'wdth'_70]"
+    "text-[clamp(2rem,5vw,4.25rem)] [font-variation-settings:'wdth'_62]"
 
   return (
     <section
@@ -26,8 +25,8 @@ const Hero = ({ lang }: { lang: Lang }) => {
     >
       <div className="relative order-2 flex flex-col justify-center gap-8 px-6 py-12 small:order-1 small:px-12 small:py-16 medium:pl-[max(3rem,calc((100vw-80rem)/2+3rem))]">
         <h1 className={`font-display ${headlineSize} font-black uppercase leading-[0.92] tracking-[-0.01em] text-white`}>
-          <span className="block whitespace-nowrap landing-rise">{t.heroLine1}</span>
-          <span className="block whitespace-nowrap landing-rise landing-rise-2">{t.heroLine2}</span>
+          <span className="block text-balance small:whitespace-nowrap landing-rise">{t.heroLine1}</span>
+          <span className="block text-balance small:whitespace-nowrap landing-rise landing-rise-2">{t.heroLine2}</span>
         </h1>
         <p className="max-w-md text-lg leading-snug text-white landing-rise landing-rise-3">
           {t.heroSub}

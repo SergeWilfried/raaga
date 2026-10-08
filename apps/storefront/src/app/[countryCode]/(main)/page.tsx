@@ -1,7 +1,8 @@
 import BrandLedger from "@/modules/home/components/brand-ledger"
 import Hero from "@/modules/home/components/hero"
 import HowItWorks from "@/modules/home/components/how-it-works"
-import QuoteBand from "@/modules/home/components/quote-band"
+import TwoSidedBand from "@/modules/home/components/two-sided-band"
+import WhyLocal from "@/modules/home/components/why-local"
 import ShelfNow from "@/modules/home/components/shelf-now"
 import { getLandingCopy, resolveLang } from "@/lib/landing-copy"
 import { languageAlternates, socialMetadata } from "@/lib/seo"
@@ -41,11 +42,12 @@ export default async function Home(props: Props) {
       <Suspense fallback={<div className="content-container h-72 py-14" aria-hidden="true" />}>
         <ShelfNow countryCode={countryCode} lang={lang} />
       </Suspense>
+      <WhyLocal lang={lang} />
       <Suspense fallback={null}>
         <BrandLedger lang={lang} />
       </Suspense>
       <HowItWorks lang={lang} />
-      <QuoteBand lang={lang} />
+      <TwoSidedBand lang={lang} />
     </div>
   )
 }

@@ -122,13 +122,11 @@ export default async function Footer() {
               {t.footerPrivacy}
             </LocalizedClientLink>
           </li>
-          {canContact && (
-            <li>
-              <LocalizedClientLink href="/suppliers" className={linkClass}>
-                {t.footerSuppliers}
-              </LocalizedClientLink>
-            </li>
-          )}
+          <li>
+            <LocalizedClientLink href="/suppliers" className={linkClass}>
+              {t.footerSuppliers}
+            </LocalizedClientLink>
+          </li>
         </Column>
       </div>
 

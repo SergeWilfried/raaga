@@ -96,8 +96,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .join(", ")
   const tail =
     lang === "fr"
-      ? ". Pièce minière en Afrique de l'Ouest : stock en direct, commande ou devis."
-      : ". Mining spare part in West Africa: live stock, order or quote."
+      ? ". Pièce détachée en Afrique de l'Ouest : stock en direct, commande ou devis."
+      : ". Spare part in West Africa: live stock, order or quote."
   // Keep the closing sentence whole; trim the facts if the whole is too long.
   const room = 158 - tail.length
   const description =

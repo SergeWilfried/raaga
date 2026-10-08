@@ -1,5 +1,5 @@
 import { getContactChannels } from "@/lib/contact"
-import { draftNotice, getPageCopy, PageKey } from "@/lib/pages-copy"
+import { downloadLabel, draftNotice, getPageCopy, PageKey } from "@/lib/pages-copy"
 import type { Lang } from "@/lib/landing-copy"
 import { Heading } from "@medusajs/ui"
 
@@ -10,10 +10,12 @@ type InfoPageProps = {
   showContact?: boolean
   /** Legal text still waiting for review. */
   draft?: boolean
+  /** A file to offer for download under the text. */
+  download?: string
 }
 
 /** A plain, readable text page: one column, short line length, clear headings. */
-const InfoPage = ({ pageKey, lang, showContact, draft }: InfoPageProps) => {
+const InfoPage = ({ pageKey, lang, showContact, draft, download }: InfoPageProps) => {
   const page = getPageCopy(pageKey, lang)
   const channels = showContact ? getContactChannels() : []
   const reviewed = process.env.NEXT_PUBLIC_LEGAL_REVIEWED === "true"
@@ -47,6 +49,17 @@ const InfoPage = ({ pageKey, lang, showContact, draft }: InfoPageProps) => {
             ))}
           </section>
         ))}
+
+        {download && (
+          <a
+            href={download}
+            download
+            className="inline-flex min-h-14 w-fit items-center justify-center rounded-lg bg-brand px-6 py-3 text-center text-base font-semibold text-white hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-950/40"
+            data-testid="sheet-download"
+          >
+            {downloadLabel[lang]}
+          </a>
+        )}
 
         {channels.length > 0 && (
           <ul className="flex flex-col gap-2" data-testid="contact-channels">
