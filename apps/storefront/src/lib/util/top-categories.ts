@@ -20,3 +20,25 @@ export const getTopCategories = (
     hasMore: sorted.length > limit,
   }
 }
+
+/**
+ * The busiest categories that have no subcategories. Parents (which may be
+ * groupings, not something to browse) are skipped, so a long list of children
+ * can never spill into a menu that only has room for a few links.
+ */
+export const getLeafCategories = (
+  categories: HttpTypes.StoreProductCategory[],
+  limit: number
+) => {
+  const leaves = categories.filter(
+    (category) => !category.category_children?.length
+  )
+  const sorted = [...leaves].sort(
+    (a, b) => categoryProductCount(b) - categoryProductCount(a)
+  )
+
+  return {
+    categories: sorted.slice(0, limit),
+    hasMore: sorted.length > limit,
+  }
+}

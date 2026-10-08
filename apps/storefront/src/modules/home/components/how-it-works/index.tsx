@@ -6,11 +6,11 @@ const HowItWorks = ({ lang }: { lang: Lang }) => {
   const t = getLandingCopy(lang)
 
   return (
-    <section className="content-container flex flex-col gap-8 py-14" aria-labelledby="how-heading">
+    <section id="how" className="content-container flex flex-col gap-8 py-14 scroll-mt-20" aria-labelledby="how-heading">
       <Heading
         level="h2"
         id="how-heading"
-        className="font-display text-3xl font-extrabold uppercase text-ui-fg-base [font-variation-settings:'wdth'_75] small:text-4xl"
+        className="font-display font-extrabold uppercase text-ui-fg-base [font-variation-settings:'wdth'_75] text-[clamp(1.5rem,6.5vw,1.875rem)] small:text-4xl"
       >
         {t.howTitle}
       </Heading>

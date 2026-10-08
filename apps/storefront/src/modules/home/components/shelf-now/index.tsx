@@ -44,7 +44,7 @@ const ShelfNow = async ({
         <Heading
           level="h2"
           id="shelf-heading"
-          className="font-display text-3xl font-extrabold uppercase text-ui-fg-base [font-variation-settings:'wdth'_75] small:text-4xl"
+          className="font-display font-extrabold uppercase text-ui-fg-base [font-variation-settings:'wdth'_75] text-[clamp(1.5rem,6.5vw,1.875rem)] small:text-4xl"
         >
           {t.shelfTitle}
         </Heading>

@@ -17,12 +17,12 @@ const BrandLedger = async ({ lang }: { lang: Lang }) => {
   if (!brands.length) return null
 
   return (
-    <section className="border-t border-neutral-200 bg-neutral-50" aria-labelledby="brands-heading">
+    <section id="brands" className="scroll-mt-20 border-t border-neutral-200 bg-neutral-50" aria-labelledby="brands-heading">
       <div className="content-container flex flex-col gap-6 py-14">
         <Heading
           level="h2"
           id="brands-heading"
-          className="font-display text-3xl font-extrabold uppercase text-ui-fg-base [font-variation-settings:'wdth'_75] small:text-4xl"
+          className="font-display font-extrabold uppercase text-ui-fg-base [font-variation-settings:'wdth'_75] text-[clamp(1.5rem,6.5vw,1.875rem)] small:text-4xl"
         >
           {t.brandsTitle}
         </Heading>
