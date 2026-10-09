@@ -291,6 +291,53 @@ export default async function seedNordgold({ container }: ExecArgs) {
     }
   }
 
+  // A part (same G-code) can be held at several warehouses, e.g. Burkina Faso
+  // and Guinea. Those already exist as products, so instead of skipping them
+  // add this warehouse's stock level to the existing inventory item.
+  const shared = rows.filter((r) => have.has(handleOf(r)));
+  let addedLevels = 0;
+  for (let i = 0; i < shared.length; i += BATCH) {
+    const chunk = shared.slice(i, i + BATCH);
+    const { data: variants } = await query.graph({
+      entity: "product_variant",
+      fields: ["sku", "inventory_items.inventory_item_id"],
+      filters: { sku: chunk.map((r) => r.code) },
+    });
+    const bySku = new Map(chunk.map((r) => [r.code, r]));
+    const wanted = variants.flatMap((v) => {
+      const r = bySku.get(v.sku!);
+      if (!r) return [];
+      return (v.inventory_items ?? []).map((ii: any) => ({
+        location_id: locationIds.get(`${CLIENT} ${r.location}`)!,
+        inventory_item_id: ii.inventory_item_id as string,
+        stocked_quantity: r.qty,
+      }));
+    });
+    if (!wanted.length) continue;
+    const { data: levels } = await query.graph({
+      entity: "inventory_level",
+      fields: ["inventory_item_id", "location_id"],
+      filters: { inventory_item_id: wanted.map((w) => w.inventory_item_id) },
+    });
+    const haveLevel = new Set(
+      levels.map((l: any) => `${l.inventory_item_id}:${l.location_id}`)
+    );
+    const missingLevels = wanted.filter(
+      (w) => !haveLevel.has(`${w.inventory_item_id}:${w.location_id}`)
+    );
+    if (missingLevels.length) {
+      await createInventoryLevelsWorkflow(container).run({
+        input: { inventory_levels: missingLevels },
+      });
+      addedLevels += missingLevels.length;
+    }
+  }
+  if (shared.length) {
+    logger.info(
+      `${shared.length} parts already existed; added stock at their other warehouse for ${addedLevels}.`
+    );
+  }
+
   for (let i = 0; i < todo.length; i += BATCH) {
     const chunk = todo.slice(i, i + BATCH);
     for (let attempt = 1; ; attempt++) {

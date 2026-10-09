@@ -70,6 +70,10 @@ export const NORDGOLD_CATEGORY: Record<string, CategoryName> = {
   PPE: "PPE and safety",
   "Other reagents": "Chemicals and reagents",
   CEMENT: "Chemicals and reagents",
+  "Drilling Consumables UG": "Drilling consumables",
+  "UG spare parts": "Mining fleet and drill spares",
+  "Roof bolting": "Fasteners and hardware",
+  Lime: "Chemicals and reagents",
   "Other spares": "Other spares",
   Others: "Other spares",
 };
